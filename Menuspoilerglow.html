@@ -133,10 +133,10 @@
     </div>
 
     <div class="content-area">
-      <!-- TAB 1: MOD DI CHUYỂN -->
+      <!-- TAB 1: MOD DI CHUYỂN NEARBY -->
       <div id="walkTab" class="tab-panel active">
-        <div class="guide-box" id="guideWalk">👉 Hãy vào map chơi rồi bấm nút bên dưới để bắt đầu:</div>
-        <button class="action-btn btn-green" id="btnWalkAction" onclick="nextWalkStep()">Bước 1: Quét -10 (F32)</button>
+        <div class="guide-box" id="guideWalk">👉 Hãy vào map chơi rồi bấm nút bên dưới để quét Nearby:</div>
+        <button class="action-btn btn-green" id="btnWalkAction" onclick="nextWalkNearbyStep()">Bước 1: Quét Gốc -10 (F32)</button>
         <button class="action-btn btn-red" onclick="resetWalkSteps()">Làm lại từ đầu</button>
       </div>
 
@@ -176,52 +176,54 @@
       setStatus("Đã chuyển tab");
     }
 
-    // ================= LOGIC MOD DI CHUYỂN (-10 -> 49 -> -10 -> 999) =================
+    // ================= LOGIC MOD DI CHUYỂN (NEARBY SEARCH F32) =================
     let stepWalk = 1;
 
-    function nextWalkStep() {
+    function nextWalkNearbyStep() {
       if (typeof h5gg === 'undefined') { alert("H5GG chưa load!"); return; }
       hideKeyboard();
       const btn = document.getElementById('btnWalkAction');
       const guide = document.getElementById('guideWalk');
 
       if (stepWalk === 1) {
-        setStatus("Đang quét -10...");
+        setStatus("Đang quét gốc -10...");
         h5gg.clearResults();
         h5gg.searchNumber('-10', 'F32', ANON_MIN, ANON_MAX);
         let count = h5gg.getResultsCount();
-        if (count === 0) { alert("Không tìm thấy giá trị -10! Hãy chắc chắn bạn đang ở trong map."); return; }
+        if (count === 0) { alert("Không tìm thấy giá trị -10! Hãy chắc chắn đang ở trong map."); return; }
         
         stepWalk = 2;
-        guide.innerText = `Tìm thấy ${count} kết quả.\n👉 Bấm nút tiếp theo để lọc giá trị 49:`;
-        btn.innerText = "Bước 2: Lọc Giá Trị 49 (F32)";
+        guide.innerText = `Tìm thấy ${count} kết quả.\n👉 Bấm tiếp để tìm lân cận (Nearby) giá trị 49:`;
+        btn.innerText = "Bước 2: Tìm Lân Cận 49 (F32)";
         btn.className = "action-btn btn-orange";
         setStatus(`Còn ${count} kết quả`);
       } else if (stepWalk === 2) {
-        setStatus("Đang lọc 49...");
-        h5gg.searchNumber('49', 'F32', ANON_MIN, ANON_MAX);
+        setStatus("Đang quét lân cận 49 (Khoảng cách 0x100)...");
+        // Dùng hàm searchNearby tìm 49 trong phạm vi lân cận
+        h5gg.searchNearby('49', 'F32', '0x100');
         let count = h5gg.getResultsCount();
-        if (count === 0) { alert("Lọc thất bại!"); resetWalkSteps(); return; }
+        if (count === 0) { alert("Không tìm thấy giá trị lân cận 49!"); resetWalkSteps(); return; }
 
         stepWalk = 3;
-        guide.innerText = `Còn ${count} kết quả.\n👉 Bấm nút tiếp theo để lọc lại giá trị -10:`;
-        btn.innerText = "Bước 3: Lọc Lại Giá Trị -10 (F32)";
+        guide.innerText = `Còn ${count} kết quả.\n👉 Bấm tiếp để khóa lại lân cận giá trị -10:`;
+        btn.innerText = "Bước 3: Khóa Lân Cận -10 (F32)";
         btn.className = "action-btn btn-orange";
         setStatus(`Còn ${count} kết quả`);
       } else if (stepWalk === 3) {
-        setStatus("Đang lọc lại -10...");
-        h5gg.searchNumber('-10', 'F32', ANON_MIN, ANON_MAX);
+        setStatus("Đang quét lân cận -10...");
+        // Khóa lại giá trị -10 trong cụm đó
+        h5gg.searchNearby('-10', 'F32', '0x100');
         let count = h5gg.getResultsCount();
         if (count === 0) { alert("Lọc thất bại!"); resetWalkSteps(); return; }
 
         stepWalk = 4;
-        guide.innerText = `✅ ĐÃ KHÓA XONG ${count} ĐỊA CHỈ!\n👉 Bấm nút bên dưới để áp dụng giá trị 999:`;
+        guide.innerText = `✅ ĐÃ KHÓA CHUẨN ${count} ĐỊA CHỈ!\n👉 Bấm nút bên dưới để áp dụng giá trị 999:`;
         btn.innerText = "Bước 4: Kích Hoạt (Set = 999)";
         btn.className = "action-btn btn-purple";
         setStatus(`Khóa ${count} địa chỉ`);
       } else if (stepWalk === 4) {
         h5gg.editAll('999', 'F32');
-        alert("✅ KÍCH HOẠT THÀNH CÔNG!\nĐã cập nhật thông số di chuyển sang 999.");
+        alert("✅ KÍCH HOẠT THÀNH CÔNG!\nĐã cập nhật giá trị di chuyển sang 999.");
         setStatus("Kích hoạt hoàn tất (999)");
         resetWalkSteps();
       }
@@ -231,9 +233,9 @@
       hideKeyboard();
       stepWalk = 1;
       const btn = document.getElementById('btnWalkAction');
-      btn.innerText = "Bước 1: Quét -10 (F32)";
+      btn.innerText = "Bước 1: Quét Gốc -10 (F32)";
       btn.className = "action-btn btn-green";
-      document.getElementById('guideWalk').innerText = "👉 Hãy vào map chơi rồi bấm nút bên dưới để bắt đầu:";
+      document.getElementById('guideWalk').innerText = "👉 Hãy vào map chơi rồi bấm nút bên dưới để quét Nearby:";
       setStatus("Sẵn sàng");
     }
 
