@@ -3,11 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>CPM Pro Cheat</title>
+  <title>Menu hack cpk beta by DucMinhDo x Gemini</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
     body {
-      background: rgba(13, 17, 23, 0.92);
+      background: rgba(13, 17, 23, 0.88);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       color: #f8fafc;
@@ -17,9 +22,14 @@
       user-select: none;
       -webkit-user-select: none;
       border: 1px solid rgba(56, 189, 248, 0.25);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 15px rgba(56, 189, 248, 0.15);
       width: 290px;
     }
-    .header { text-align: center; margin-bottom: 12px; }
+    .header {
+      text-align: center;
+      margin-bottom: 12px;
+      position: relative;
+    }
     .header h3 {
       font-size: 15px;
       font-weight: 800;
@@ -28,6 +38,12 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       text-transform: uppercase;
+    }
+    .header .subtitle {
+      font-size: 9px;
+      color: #64748b;
+      letter-spacing: 1px;
+      margin-top: 2px;
     }
     .tabs {
       display: flex;
@@ -48,13 +64,16 @@
       color: #94a3b8;
       border-radius: 8px;
       cursor: pointer;
+      transition: all 0.25s ease;
     }
     .tab-btn.active {
       background: linear-gradient(135deg, #0284c7, #2563eb);
       color: #ffffff;
+      box-shadow: 0 2px 10px rgba(37, 99, 235, 0.35);
     }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
+    
     .guide-card {
       font-size: 11.5px;
       color: #cbd5e1;
@@ -80,6 +99,11 @@
       text-align: center;
       outline: none;
       display: none;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
+    }
+    .input-box:focus {
+      border-color: #38bdf8;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
     }
     .btn {
       display: flex;
@@ -93,23 +117,52 @@
       border-radius: 10px;
       font-size: 12px;
       font-weight: 700;
+      letter-spacing: 0.3px;
       cursor: pointer;
+      transition: transform 0.1s ease, filter 0.2s ease;
     }
-    .btn-green { background: linear-gradient(135deg, #10b981, #059669); }
-    .btn-orange { background: linear-gradient(135deg, #f97316, #ea580c); }
-    .btn-glow { background: linear-gradient(135deg, #a855f7, #7c3aed); }
+    .btn:active {
+      transform: scale(0.97);
+    }
+    .btn-green { 
+      background: linear-gradient(135deg, #10b981, #059669); 
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+    }
+    .btn-orange { 
+      background: linear-gradient(135deg, #f97316, #ea580c); 
+      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25);
+    }
+    .btn-glow { 
+      background: linear-gradient(135deg, #a855f7, #7c3aed); 
+      box-shadow: 0 4px 15px rgba(168, 85, 247, 0.35);
+    }
     .btn-red { 
       background: rgba(239, 68, 68, 0.15); 
-      color: #f87171; 
-      border: 1px solid rgba(239, 68, 68, 0.3); 
-      padding: 8px; 
-      font-size: 11px; 
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 8px;
+      font-size: 11px;
+      margin-top: 4px;
+    }
+    .btn-red:active {
+      background: rgba(239, 68, 68, 0.25);
     }
     .status-bar {
       font-size: 10.5px;
       color: #64748b;
       text-align: center;
       margin-top: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 6px #10b981;
     }
   </style>
 </head>
@@ -117,6 +170,7 @@
 
   <div class="header">
     <h3>CPM PRO CHEAT</h3>
+    <div class="subtitle">iOS H5GG ENGINE</div>
   </div>
 
   <div class="tabs">
@@ -124,7 +178,7 @@
     <button class="tab-btn" id="tabBtnGlow" onclick="switchTab('glow')">Mod Phát Sáng</button>
   </div>
 
-  <!-- TAB 1: MOD BODY -->
+  <!-- TAB 1: MOD BODY XE -->
   <div id="tabBody" class="tab-content active">
     <div class="guide-card" id="guideBody">Bấm chọn CẢN SỐ 2 trong game rồi bấm nút bên dưới.</div>
     <input type="number" id="inputBody" class="input-box" placeholder="Nhập ID Body muốn mod...">
@@ -132,15 +186,18 @@
     <button class="btn btn-red" onclick="resetBodySteps()">Làm lại từ đầu</button>
   </div>
 
-  <!-- TAB 2: MOD PHÁT SÁNG (CHUẨN 7 BƯỚC) -->
+  <!-- TAB 2: MOD PHÁT SÁNG -->
   <div id="tabGlow" class="tab-content">
     <div class="guide-card" id="guideGlow">Kéo màu chi tiết về TRẮNG (#FFFFFF) rồi bấm nút dưới.</div>
-    <input type="number" id="inputGlow" class="input-box" value="38" placeholder="Độ sáng (mặc định 38)">
+    <input type="number" id="inputGlow" class="input-box" value="8" placeholder="Độ sáng (mặc định 8)">
     <button class="btn btn-green" id="btnGlow" onclick="nextGlowStep()">Bước 1: Quét Màu Trắng (F32 = 1)</button>
     <button class="btn btn-red" onclick="resetGlowSteps()">Làm lại từ đầu</button>
   </div>
 
-  <div class="status-bar" id="statusLog">Sẵn sàng hoạt động</div>
+  <div class="status-bar">
+    <div class="status-dot"></div>
+    <span id="statusLog">Sẵn sàng hoạt động</span>
+  </div>
 
   <script>
     const ANON_MIN = '0x100000000';
@@ -150,12 +207,7 @@
       document.getElementById('statusLog').innerText = msg;
     }
 
-    function hideKeyboard() {
-      if (document.activeElement) document.activeElement.blur();
-    }
-
     function switchTab(tab) {
-      hideKeyboard();
       document.getElementById('tabBody').classList.remove('active');
       document.getElementById('tabGlow').classList.remove('active');
       document.getElementById('tabBtnBody').classList.remove('active');
@@ -172,12 +224,11 @@
     }
 
     // ==========================================
-    // 1. LOGIC MOD BODY
+    // 1. LOGIC MOD BODY XE (I32)
     // ==========================================
     let stepBody = 1;
     function nextBodyStep() {
       if (typeof h5gg === 'undefined') { alert("Lỗi: H5GG chưa được load!"); return; }
-      hideKeyboard();
       const btn = document.getElementById('btnBody');
       const input = document.getElementById('inputBody');
       const guide = document.getElementById('guideBody');
@@ -189,51 +240,62 @@
         let count = h5gg.getResultsCount();
         if (count === 0) { alert("Không tìm thấy!"); return; }
         stepBody = 2;
-        guide.innerText = `Tìm thấy ${count} kết quả.\n👉 Chọn CẢN SỐ 3 rồi bấm nút dưới.`;
+        guide.innerText = `Tìm thấy ${count} kết quả.\n👉 Chạm vào game CHỌN CẢN SỐ 3, rồi bấm nút dưới.`;
         btn.innerText = "Bước 2: Lọc Cản 3 (Refine 2)";
         setStatus(`Còn ${count} kết quả`);
       } else if (stepBody === 2) {
+        setStatus("Đang lọc cản 3...");
         h5gg.searchNumber('2', 'I32', '0x00000000', '0x200000000');
         let count = h5gg.getResultsCount();
+        if (count === 0) { alert("Lọc thất bại!"); resetBodySteps(); return; }
         stepBody = 3;
-        guide.innerText = `Còn ${count} kết quả.\n👉 Chọn CẢN SỐ 4 rồi bấm nút dưới.`;
+        guide.innerText = `Còn ${count} kết quả.\n👉 Chạm vào game CHỌN CẢN SỐ 4, rồi bấm nút dưới.`;
         btn.innerText = "Bước 3: Lọc Cản 4 (Refine 3)";
+        setStatus(`Còn ${count} kết quả`);
       } else if (stepBody === 3) {
+        setStatus("Đang lọc cản 4...");
         h5gg.searchNumber('3', 'I32', '0x00000000', '0x200000000');
         let count = h5gg.getResultsCount();
+        if (count === 0) { alert("Lọc thất bại!"); resetBodySteps(); return; }
         stepBody = 4;
-        guide.innerText = `Còn ${count} kết quả.\n👉 Chọn CẢN SỐ 5 rồi bấm nút dưới.`;
+        guide.innerText = `Còn ${count} kết quả.\n👉 Chạm vào game CHỌN CẢN SỐ 5, rồi bấm nút dưới.`;
         btn.innerText = "Bước 4: Lọc Cản 5 (Refine 4)";
+        setStatus(`Còn ${count} kết quả`);
       } else if (stepBody === 4) {
+        setStatus("Đang lọc cản 5...");
         h5gg.searchNumber('4', 'I32', '0x00000000', '0x200000000');
         let count = h5gg.getResultsCount();
+        if (count === 0) { alert("Lọc thất bại!"); resetBodySteps(); return; }
         stepBody = 5;
-        guide.innerText = `Còn ${count} kết quả.\n👉 Chọn CẢN SỐ 6 rồi bấm nút dưới.`;
+        guide.innerText = `Còn ${count} kết quả.\n👉 Chạm vào game CHỌN CẢN SỐ 6, rồi bấm nút dưới.`;
         btn.innerText = "Bước 5: Lọc Cản 6 (Refine 5)";
+        setStatus(`Còn ${count} kết quả`);
       } else if (stepBody === 5) {
+        setStatus("Đang lọc cản 6...");
         h5gg.searchNumber('5', 'I32', '0x00000000', '0x200000000');
         let count = h5gg.getResultsCount();
+        if (count === 0) { alert("Lọc thất bại!"); resetBodySteps(); return; }
         stepBody = 6;
-        guide.innerText = `✅ ĐÃ TÌM ĐƯỢC ${count} ĐỊA CHỈ!\n👉 Ra gara chọn xe có hốc gió rồi bấm nút dưới.`;
+        guide.innerText = `✅ ĐÃ TÌM ĐƯỢC ${count} ĐỊA CHỈ!\n\n👉 Thoát ra ngoài, CHỌN XE CÓ HỐC GIÓ bạn muốn mod.\n👉 Chọn xong bấm nút xác nhận bên dưới.`;
         btn.innerText = "Đã Chọn Xe (Tiếp tục)";
         btn.className = "btn btn-orange";
+        setStatus(`Khóa mục tiêu: ${count} địa chỉ`);
       } else if (stepBody === 6) {
         stepBody = 7;
-        guide.innerText = "👉 Nhập ID Body muốn mod rồi bấm Áp Dụng.";
+        guide.innerText = "👉 Nhập số ID Body muốn mod vào ô bên dưới, sau đó bấm Áp Dụng.";
         input.style.display = "block";
         btn.innerText = "Áp Dụng Body Mod";
         btn.className = "btn btn-green";
       } else if (stepBody === 7) {
         let val = input.value.trim();
-        if (!val || isNaN(val)) { alert("Vui lòng nhập số ID!"); return; }
+        if (!val || isNaN(val)) { alert("Vui lòng nhập số ID hợp lệ!"); return; }
         h5gg.editAll(val, 'I32');
-        alert(`ĐÃ MOD THÀNH CÔNG SANG BODY ID: ${val}`);
+        alert(`ĐÃ THAY ĐỔI THÀNH CÔNG SANG BODY ID: ${val}`);
         resetBodySteps();
       }
     }
 
     function resetBodySteps() {
-      hideKeyboard();
       stepBody = 1;
       document.getElementById('inputBody').style.display = "none";
       document.getElementById('inputBody').value = "";
@@ -244,91 +306,69 @@
     }
 
     // ==========================================
-    // 2. LOGIC MOD PHÁT SÁNG (ĐỦ 7 BƯỚC LỌC SẠCH)
+    // 2. LOGIC MOD PHÁT SÁNG (ANONYMOUS & F32)
     // ==========================================
     let stepGlow = 1;
     const sequenceGlow = [
-      { val: '1', name: 'TRẮNG (#FFFFFF)' },
-      { val: '0', name: 'ĐEN (#000000)' },
-      { val: '1', name: 'TRẮNG (#FFFFFF)' },
-      { val: '0', name: 'ĐEN (#000000)' },
-      { val: '1', name: 'TRẮNG (#FFFFFF)' },
-      { val: '0', name: 'ĐEN (#000000)' },
+      { val: '1', name: 'TRẮNG (#FFFFFF)' }, { val: '0', name: 'ĐEN (#000000)' },
+      { val: '1', name: 'TRẮNG (#FFFFFF)' }, { val: '0', name: 'ĐEN (#000000)' },
+      { val: '1', name: 'TRẮNG (#FFFFFF)' }, { val: '0', name: 'ĐEN (#000000)' },
       { val: '1', name: 'TRẮNG (#FFFFFF)' }
     ];
 
     function nextGlowStep() {
       if (typeof h5gg === 'undefined') { alert("Lỗi: H5GG chưa được load!"); return; }
-      hideKeyboard();
       const btn = document.getElementById('btnGlow');
       const input = document.getElementById('inputGlow');
       const guide = document.getElementById('guideGlow');
 
-      if (currentGlowStepHandler()) return;
-
-      function currentGlowStepHandler() {
-        if (stepGlow === 1) {
-          setStatus("Đang quét an toàn...");
-          setTimeout(() => {
-            h5gg.clearResults();
-            h5gg.searchNumber('1', 'F32', ANON_MIN, ANON_MAX);
-            let count = h5gg.getResultsCount();
-            if (count === 0) { alert("Không tìm thấy giá trị 1! Hãy kéo màu về TRẮNG (#FFFFFF)."); return; }
-            
-            stepGlow = 2;
-            guide.innerText = `Còn ${count} kết quả.\n👉 Bây giờ hãy kéo màu về ĐEN (#000000), rồi bấm nút dưới.`;
-            btn.innerText = "Bước 2: Lọc Màu Đen (F32 = 0)";
+      if (stepGlow === 1) {
+        setStatus("Đang quét vùng Anonymous...");
+        setTimeout(() => {
+          h5gg.clearResults();
+          h5gg.searchNumber('1', 'F32', ANON_MIN, ANON_MAX);
+          let count = h5gg.getResultsCount();
+          if (count === 0) { alert("Không tìm thấy giá trị 1! Hãy chắc chắn kéo màu về TRẮNG (#FFFFFF)."); return; }
+          stepGlow = 2;
+          guide.innerText = `Còn ${count} kết quả.\n👉 Bây giờ hãy kéo màu về ĐEN (#000000), rồi bấm nút dưới.`;
+          btn.innerText = "Bước 2: Lọc Màu Đen (F32 = 0)";
+          setStatus(`Còn ${count} kết quả`);
+        }, 100);
+      } else if (stepGlow >= 2 && stepGlow <= 7) {
+        let currentTarget = sequenceGlow[stepGlow - 1].val;
+        setStatus(`Đang lọc Float ${currentTarget}...`);
+        setTimeout(() => {
+          h5gg.searchNumber(currentTarget, 'F32', ANON_MIN, ANON_MAX);
+          let count = h5gg.getResultsCount();
+          if (count === 0) { alert(`Lọc thất bại!`); resetGlowSteps(); return; }
+          if (stepGlow === 7) {
+            stepGlow = 8;
+            guide.innerText = `✅ ĐÃ LỌC XONG (Còn ${count} địa chỉ)!\n\nNhập độ sáng (mặc định: 8) rồi bấm Kích Hoạt.`;
+            input.style.display = "block";
+            btn.innerText = "Kích Hoạt Phát Sáng (Set = 8)";
+            btn.className = "btn btn-glow";
+            setStatus(`Khóa ${count} địa chỉ`);
+          } else {
+            stepGlow++;
+            const nextTarget = sequenceGlow[stepGlow - 1];
+            guide.innerText = `Còn ${count} kết quả.\n👉 Kéo màu về ${nextTarget.name}, rồi bấm nút dưới.`;
+            btn.innerText = `Bước ${stepGlow}: Lọc Màu ${nextTarget.val === '1' ? 'Trắng' : 'Đen'} (F32 = ${nextTarget.val})`;
             setStatus(`Còn ${count} kết quả`);
-          }, 80);
-          return true;
-        } 
-        else if (stepGlow >= 2 && stepGlow <= 7) {
-          let currentTarget = sequenceGlow[stepGlow - 1].val;
-          setStatus(`Đang lọc Float ${currentTarget}...`);
-          
-          setTimeout(() => {
-            h5gg.searchNumber(currentTarget, 'F32', ANON_MIN, ANON_MAX);
-            let count = h5gg.getResultsCount();
-            if (count === 0) { alert("Lọc thất bại! Hãy làm lại từ đầu."); resetGlowSteps(); return; }
-
-            if (stepGlow === 7) {
-              stepGlow = 8;
-              guide.innerText = `✅ ĐÃ LỌC XONG (Còn ${count} địa chỉ sạch)!\n\nNhập độ sáng phát sáng (mặc định: 38) rồi bấm Kích Hoạt.`;
-              input.style.display = "block";
-              btn.innerText = "Kích Hoạt Phát Sáng";
-              btn.className = "btn btn-glow";
-              setStatus(`Khóa ${count} địa chỉ`);
-            } else {
-              stepGlow++;
-              const nextTarget = sequenceGlow[stepGlow - 1];
-              guide.innerText = `Còn ${count} kết quả.\n👉 Kéo màu về ${nextTarget.name}, rồi bấm nút dưới.`;
-              btn.innerText = `Bước ${stepGlow}: Lọc Màu ${nextTarget.val === '1' ? 'Trắng' : 'Đen'} (F32 = ${nextTarget.val})`;
-              setStatus(`Còn ${count} kết quả`);
-            }
-          }, 80);
-          return true;
-        } 
-        else if (stepGlow === 8) {
-          let val = input.value.trim();
-          if (!val || isNaN(val)) { alert("Vui lòng nhập độ sáng hợp lệ!"); return; }
-
-          setStatus("Đang ghi đè giá trị...");
-          setTimeout(() => {
-            h5gg.editAll(val, 'F32');
-            alert(`THÀNH CÔNG!\nĐã chỉnh độ sáng thành ${val}.\n👉 Chạm nhẹ vào chi tiết hoặc chuyển tab để xe phát sáng!`);
-            setStatus("Mod thành công!");
-            resetGlowSteps();
-          }, 50);
-          return true;
-        }
+          }
+        }, 100);
+      } else if (stepGlow === 8) {
+        let val = input.value.trim();
+        if (!val || isNaN(val)) { alert("Vui lòng nhập số hợp lệ!"); return; }
+        h5gg.editAll(val, 'F32');
+        alert(`THÀNH CÔNG!\nĐã chỉnh độ sáng thành ${val}.`);
+        resetGlowSteps();
       }
     }
 
     function resetGlowSteps() {
-      hideKeyboard();
       stepGlow = 1;
       document.getElementById('inputGlow').style.display = "none";
-      document.getElementById('inputGlow').value = "38";
+      document.getElementById('inputGlow').value = "8";
       const btn = document.getElementById('btnGlow');
       btn.className = "btn btn-green";
       btn.innerText = "Bước 1: Quét Màu Trắng (F32 = 1)";
