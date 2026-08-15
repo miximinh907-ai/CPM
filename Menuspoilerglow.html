@@ -26,9 +26,9 @@
       gap: 10px;
       height: 245px;
     }
-    /* SIDEBAR BÊN TRÁI */
+    /* SIDEBAR */
     .sidebar {
-      width: 105px;
+      width: 110px;
       display: flex;
       flex-direction: column;
       gap: 5px;
@@ -39,15 +39,15 @@
       font-size: 11px;
       font-weight: 800;
       text-align: center;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
       background: linear-gradient(135deg, #38bdf8, #818cf8);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       line-height: 1.2;
     }
     .nav-btn {
-      padding: 8px 6px;
-      font-size: 10.5px;
+      padding: 7px 5px;
+      font-size: 10px;
       font-weight: 600;
       border: none;
       background: rgba(30, 41, 59, 0.6);
@@ -62,7 +62,7 @@
       color: #fff;
       box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
     }
-    /* NỘI DUNG BÊN PHẢI */
+    /* CONTENT AREA */
     .content-area {
       flex: 1;
       overflow-y: auto;
@@ -72,7 +72,7 @@
     .tab-panel.active { display: block; }
     
     .guide-box {
-      font-size: 10.5px;
+      font-size: 10px;
       color: #cbd5e1;
       background: rgba(30, 41, 59, 0.5);
       border: 1px dashed rgba(56, 189, 248, 0.3);
@@ -96,12 +96,6 @@
       text-align: center;
       outline: none;
     }
-    .btn-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 6px;
-      margin-bottom: 6px;
-    }
     .action-btn {
       width: 100%;
       padding: 9px 4px;
@@ -113,14 +107,11 @@
       font-weight: 700;
       cursor: pointer;
     }
-    .btn-blue { background: linear-gradient(135deg, #0284c7, #2563eb); }
     .btn-green { background: linear-gradient(135deg, #10b981, #059669); }
     .btn-orange { background: linear-gradient(135deg, #f97316, #ea580c); }
     .btn-purple { background: linear-gradient(135deg, #a855f7, #7c3aed); }
-    .btn-red { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); padding: 7px; font-size: 10px; }
+    .btn-red { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); padding: 6px; font-size: 10px; }
     
-    /* RADIO PLAYER */
-    audio { width: 100%; height: 35px; margin-top: 6px; outline: none; border-radius: 8px; }
     .status-bar {
       font-size: 9.5px;
       color: #64748b;
@@ -134,62 +125,44 @@
 <body>
 
   <div class="layout-container">
-    <!-- CỘT SIDEBAR -->
     <div class="sidebar">
       <div class="brand-title">MOD CPK<br>v4.9.7</div>
-      <button class="nav-btn active" onclick="switchNav('bodyTab', this)">Mod Body</button>
+      <button class="nav-btn active" onclick="switchNav('brakeTab', this)">Buff Phanh</button>
+      <button class="nav-btn" onclick="switchNav('bodyTab', this)">Mod Body</button>
       <button class="nav-btn" onclick="switchNav('glowTab', this)">Phát Sáng</button>
-      <button class="nav-btn" onclick="switchNav('customTab', this)">Tùy Chỉnh Xe</button>
-      <button class="nav-btn" onclick="switchNav('chillTab', this)">Chill (Radio)</button>
     </div>
 
-    <!-- KHU VỰC NỘI DUNG -->
     <div class="content-area">
-      
-      <!-- TAB 1: MOD BODY -->
-      <div id="bodyTab" class="tab-panel active">
+      <!-- TAB BUFF PHANH (BRAKE SPEED) -->
+      <div id="brakeTab" class="tab-panel active">
+        <div class="guide-box" id="guideBrake">
+          👉 Mua động cơ và các mục Other (KHÔNG mua Brake).
+          👉 Nhập thông số Brake hiện tại (VD: 1500 hoặc 3000):
+        </div>
+        <input type="number" id="inputBrake" class="input-field" placeholder="Nhập Brake (VD: 1500, 3000)...">
+        <button class="action-btn btn-green" id="btnBrakeAction" onclick="processBrakeMod()">Bước 1: Quét & Đổi -5000</button>
+        <button class="action-btn btn-red" onclick="resetBrakeMod()">Làm lại</button>
+      </div>
+
+      <!-- TAB MOD BODY -->
+      <div id="bodyTab" class="tab-panel">
         <div class="guide-box" id="guideBody">Bấm chọn CẢN SỐ 2 trong game rồi bấm nút bên dưới.</div>
         <input type="number" id="inputBody" class="input-field" placeholder="Nhập ID Body..." style="display:none;">
         <button class="action-btn btn-green" id="btnBody" onclick="nextBodyStep()">Bước 1: Quét Cản 2 (I32 = 1)</button>
         <button class="action-btn btn-red" onclick="resetBodySteps()">Làm lại từ đầu</button>
       </div>
 
-      <!-- TAB 2: MOD PHÁT SÁNG -->
+      <!-- TAB PHÁT SÁNG -->
       <div id="glowTab" class="tab-panel">
         <div class="guide-box" id="guideGlow">Kéo màu chi tiết về TRẮNG (#FFFFFF) rồi bấm nút dưới.</div>
-        <input type="number" id="inputGlow" class="input-field" value="38" placeholder="Độ sáng (mặc định 38)" style="display:none;">
+        <input type="number" id="inputGlow" class="input-field" value="38" placeholder="Độ sáng" style="display:none;">
         <button class="action-btn btn-green" id="btnGlow" onclick="nextGlowStep()">Bước 1: Quét Trắng (F32 = 1)</button>
         <button class="action-btn btn-red" onclick="resetGlowSteps()">Làm lại từ đầu</button>
       </div>
-
-      <!-- TAB 3: TÙY CHỈNH XE (MASS, GÓC LÁI, CAMBER) -->
-      <div id="customTab" class="tab-panel">
-        <div class="guide-box" id="guideCustom">Chọn thông số muốn độ bên dưới để bắt đầu:</div>
-        <input type="number" id="inputCustom" class="input-field" placeholder="..." style="display:none;">
-        
-        <div class="btn-grid" id="gridCustom">
-          <button class="action-btn btn-blue" onclick="startCustomMod('Mass', 'Độ Nặng (Mass)')">Độ Nặng (Mass)</button>
-          <button class="action-btn btn-blue" onclick="startCustomMod('Shift', 'Shift Time')">Shift Time</button>
-          <button class="action-btn btn-blue" onclick="startCustomMod('Steer', 'Góc Lái')">Góc Lái</button>
-          <button class="action-btn btn-blue" onclick="startCustomMod('Camber', 'Bánh Xéo')">Bánh Xéo</button>
-        </div>
-
-        <button class="action-btn btn-green" id="btnCustomAction" style="display:none;" onclick="processCustomMod()">Bắt Đầu Quét</button>
-        <button class="action-btn btn-red" id="btnCustomReset" style="display:none;" onclick="resetCustomMod()">Hủy / Chọn Lại</button>
-      </div>
-
-      <!-- TAB 4: CHILL (TRÌNH PHÁT NHẠC RADIO) -->
-      <div id="chillTab" class="tab-panel">
-        <div class="guide-box">📻 Nghe nhạc Lo-Fi / Vinahouse khi lái xe:</div>
-        <input type="text" id="musicUrl" class="input-field" placeholder="Dán link mp3..." value="https://stream.zeno.fm/f3wvbbqmdg8uv">
-        <button class="action-btn btn-purple" onclick="playRadio()">▶ Phát Nhạc</button>
-        <audio id="audioPlayer" controls></audio>
-      </div>
-
     </div>
   </div>
 
-  <div class="status-bar" id="statusLog">H5GG Sẵn sàng hoạt động</div>
+  <div class="status-bar" id="statusLog">Sẵn sàng hoạt động</div>
 
   <script>
     const ANON_MIN = '0x100000000';
@@ -207,7 +180,46 @@
       setStatus("Đã chuyển tab");
     }
 
-    // ================= MOD BODY =================
+    // ================= LOGIC BUFF TỐC ĐỘ PHANH =================
+    function processBrakeMod() {
+      if (typeof h5gg === 'undefined') { alert("H5GG chưa được load!"); return; }
+      hideKeyboard();
+
+      const input = document.getElementById('inputBrake');
+      const val = input.value.trim();
+
+      if (!val || isNaN(val)) {
+        alert("Vui lòng nhập số Brake hợp lệ (Ví dụ: 1500 hoặc 3000)!");
+        return;
+      }
+
+      setStatus(`Đang quét Brake ${val} (F32)...`);
+      h5gg.clearResults();
+      h5gg.searchNumber(val, 'F32', ANON_MIN, ANON_MAX);
+
+      let count = h5gg.getResultsCount();
+      if (count === 0) {
+        alert(`Không tìm thấy giá trị ${val}! Vui lòng kiểm tra lại thông số Brake của xe.`);
+        setStatus("Không tìm thấy giá trị");
+        return;
+      }
+
+      // Đổi toàn bộ giá trị tìm được thành -5000
+      h5gg.editAll('-5000', 'F32');
+      setStatus(`Đã sửa ${count} kết quả thành -5000`);
+
+      alert(`✅ BUFF PHANH THÀNH CÔNG!\n\nĐã đổi ${count} giá trị Brake thành -5000.\n\n⚠️ HƯỚNG DẪN KÍCH HOẠT:\n1. Vào game giữ phanh xe trong 2 giây.\n2. Thoát ra menu chính rồi vào lại map để kích hoạt tốc độ!`);
+      resetBrakeMod();
+    }
+
+    function resetBrakeMod() {
+      hideKeyboard();
+      document.getElementById('inputBrake').value = '';
+      document.getElementById('guideBrake').innerText = "👉 Mua động cơ và các mục Other (KHÔNG mua Brake).\n👉 Nhập thông số Brake hiện tại (VD: 1500 hoặc 3000):";
+      setStatus("Sẵn sàng hoạt động");
+    }
+
+    // ================= LOGIC MOD BODY =================
     let stepBody = 1;
     function nextBodyStep() {
       if (typeof h5gg === 'undefined') { alert("H5GG chưa load!"); return; }
@@ -246,6 +258,7 @@
         resetBodySteps();
       }
     }
+
     function resetBodySteps() {
       hideKeyboard();
       stepBody = 1;
@@ -257,7 +270,7 @@
       setStatus("Sẵn sàng");
     }
 
-    // ================= MOD PHÁT SÁNG =================
+    // ================= LOGIC PHÁT SÁNG =================
     let stepGlow = 1;
     const seqGlow = ['1', '0', '1', '0', '1', '0', '1'];
     function nextGlowStep() {
@@ -304,6 +317,7 @@
         resetGlowSteps();
       }
     }
+
     function resetGlowSteps() {
       hideKeyboard();
       stepGlow = 1;
@@ -313,116 +327,6 @@
       document.getElementById('btnGlow').className = "action-btn btn-green";
       document.getElementById('guideGlow').innerText = "Kéo màu chi tiết về TRẮNG (#FFFFFF) rồi bấm nút dưới.";
       setStatus("Sẵn sàng");
-    }
-
-    // ================= TÙY CHỈNH XE (MASS, GÓC LÁI...) =================
-    let currentCustom = '';
-    let customStep = 0;
-
-    function startCustomMod(type, name) {
-      currentCustom = type;
-      customStep = 1;
-      document.getElementById('gridCustom').style.display = 'none';
-      document.getElementById('inputCustom').style.display = 'block';
-      document.getElementById('btnCustomAction').style.display = 'block';
-      document.getElementById('btnCustomReset').style.display = 'block';
-      
-      const guide = document.getElementById('guideCustom');
-      const input = document.getElementById('inputCustom');
-      const btn = document.getElementById('btnCustomAction');
-
-      if (type === 'Mass') {
-        guide.innerText = "👉 Vào khoang động cơ, xem thông số [Mass] của xe.\n👉 Nhập đúng số Mass đó vào ô dưới:";
-        input.placeholder = "Nhập Mass hiện tại (VD: 1500)...";
-      } else if (type === 'Shift') {
-        guide.innerText = "👉 Xem thông số [Shift Time] của xe.\n👉 Nhập đúng số đó vào ô dưới:";
-        input.placeholder = "Nhập Shift Time (VD: 0.25)...";
-      } else if (type === 'Steer') {
-        guide.innerText = "👉 Xem góc đánh lái tối đa của xe (Max Steering).\n👉 Nhập số đó vào ô dưới:";
-        input.placeholder = "Nhập Góc Lái (Thường từ 35 - 60)...";
-      } else if (type === 'Camber') {
-        guide.innerText = "👉 Xem độ nghiêng bánh xe (Camber).\n👉 Nhập số đó vào ô dưới:";
-        input.placeholder = "Nhập Camber (VD: -0.05 hoặc 0)...";
-      }
-      btn.innerText = `Bước 1: Quét thông số ${name}`;
-      btn.className = "action-btn btn-green";
-    }
-
-    function processCustomMod() {
-      if (typeof h5gg === 'undefined') { alert("H5GG chưa load!"); return; }
-      hideKeyboard();
-      let val = document.getElementById('inputCustom').value.trim();
-      const guide = document.getElementById('guideCustom');
-      const btn = document.getElementById('btnCustomAction');
-
-      if (customStep === 1) {
-        if (!val) { alert("Vui lòng nhập giá trị hiện tại!"); return; }
-        setStatus(`Đang quét ${currentCustom}: ${val}...`);
-        h5gg.clearResults();
-        h5gg.searchNumber(val, 'F32', '0x100000000', '0x200000000');
-        let count = h5gg.getResultsCount();
-        
-        if (count === 0) { alert("Không tìm thấy giá trị!"); return; }
-
-        if (count > 30) {
-           customStep = 1.5;
-           guide.innerText = `Tìm thấy ${count} kết quả. Quá nhiều rác!\n👉 Hãy thay đổi ${currentCustom} trong game để nó mang một số mới.\n👉 Nhập số MỚI vào đây để lọc tiếp.`;
-           document.getElementById('inputCustom').value = "";
-           document.getElementById('inputCustom').placeholder = "Nhập số MỚI sau khi thay đổi...";
-           btn.innerText = "Bước 2: Lọc Giá Trị Mới";
-           btn.className = "action-btn btn-orange";
-        } else {
-           customStep = 2;
-           guide.innerText = `✅ Đã khóa ${count} địa chỉ an toàn!\n👉 Nhập con số BẠN MUỐN ĐỔI THÀNH vào ô dưới:`;
-           document.getElementById('inputCustom').value = "";
-           document.getElementById('inputCustom').placeholder = "Nhập giá trị mong muốn (VD: Mass 500)...";
-           btn.innerText = "Bước 3: Ghi Đè (Áp Dụng)";
-           btn.className = "action-btn btn-purple";
-        }
-      } else if (customStep === 1.5) {
-        if (!val) { alert("Vui lòng nhập giá trị mới!"); return; }
-        h5gg.searchNumber(val, 'F32', '0x100000000', '0x200000000');
-        let count = h5gg.getResultsCount();
-        if (count === 0) { alert("Lọc thất bại! Hãy làm lại."); resetCustomMod(); return; }
-        if (count > 30) { alert(`Vẫn còn ${count} kết quả. Hãy tiếp tục thay đổi thông số và bấm lọc lại!`); return; }
-
-        customStep = 2;
-        guide.innerText = `✅ Đã khóa ${count} địa chỉ an toàn!\n👉 Nhập con số BẠN MUỐN ĐỔI THÀNH vào ô dưới:`;
-        document.getElementById('inputCustom').value = "";
-        document.getElementById('inputCustom').placeholder = "Nhập giá trị mong muốn...";
-        btn.innerText = "Bước 3: Ghi Đè (Áp Dụng)";
-        btn.className = "action-btn btn-purple";
-      } else if (customStep === 2) {
-        if (!val) { alert("Vui lòng nhập giá trị muốn đổi!"); return; }
-        h5gg.editAll(val, 'F32');
-        alert(`🎉 THÀNH CÔNG!\nĐã mod ${currentCustom} thành: ${val}.\n👉 Vào trận hoặc reset xe để thấy kết quả!`);
-        resetCustomMod();
-      }
-    }
-
-    function resetCustomMod() {
-      hideKeyboard();
-      currentCustom = '';
-      customStep = 0;
-      document.getElementById('gridCustom').style.display = 'grid';
-      document.getElementById('inputCustom').style.display = 'none';
-      document.getElementById('inputCustom').value = '';
-      document.getElementById('btnCustomAction').style.display = 'none';
-      document.getElementById('btnCustomReset').style.display = 'none';
-      document.getElementById('guideCustom').innerText = "Chọn thông số muốn độ bên dưới để bắt đầu:";
-      setStatus("Sẵn sàng");
-    }
-
-    // ================= RADIO CHILL =================
-    function playRadio() {
-      hideKeyboard();
-      const url = document.getElementById('musicUrl').value.trim();
-      const player = document.getElementById('audioPlayer');
-      if (url) {
-        player.src = url;
-        player.play();
-        setStatus("Đang phát nhạc Radio...");
-      }
     }
   </script>
 </body>
