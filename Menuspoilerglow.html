@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>CPM Glow Mod</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      background-color: rgba(18, 18, 24, 0.94);
+      color: #f1f5f9;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      padding: 12px;
+      border-radius: 14px;
+      user-select: none;
+      -webkit-user-select: none;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      width: 270px;
+    }
+    h3 {
+      margin: 0 0 10px 0;
+      font-size: 14px;
+      text-align: center;
+      color: #38bdf8;
+      text-transform: uppercase;
+    }
+    .guide {
+      font-size: 12px;
+      color: #cbd5e1;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 8px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      line-height: 1.4;
+      text-align: center;
+      white-space: pre-line;
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 6px;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn-green { background: linear-gradient(135deg, #16a34a, #15803d); }
+    .btn-glow { background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
+    .btn-red { background: linear-gradient(135deg, #dc2626, #b91c1c); margin-top: 6px; }
+    .status {
+      font-size: 11px;
+      color: #94a3b8;
+      text-align: center;
+      margin-top: 4px;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #475569;
+      background: #0f172a;
+      color: #fff;
+      font-size: 13px;
+      margin-bottom: 8px;
+      text-align: center;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h3>CPM GLOW MOD</h3>
+  
+  <div class="guide" id="guideText">Chọn màu Cản/Spoiler, kéo về TRẮNG (#FFFFFF) rồi bấm nút dưới.</div>
+  
+  <input type="number" id="glowValInput" value="8" placeholder="Độ sáng (mặc định 8)">
+
+  <button class="btn btn-green" id="actionBtn" onclick="nextGlowStep()">Bước 1: Quét Màu Trắng (F32 = 1)</button>
+  <button class="btn btn-red" onclick="resetGlowSteps()">Làm lại từ đầu</button>
+
+  <div class="status" id="statusLog">Sẵn sàng</div>
+
+  <script>
+    let currentStep = 1;
+    // Thu hẹp dải ram để tránh tràn bộ nhớ gây đơ
+    const MEM_START = '0x100000000';
+    const MEM_END   = '0x180000000';
+
+    const sequence = [
+      { val: '1', colorName: 'TRẮNG (#FFFFFF)' },
+      { val: '0', colorName: 'ĐEN (#000000)' },
+      { val: '1', colorName: 'TRẮNG (#FFFFFF)' },
+      { val: '0', colorName: 'ĐEN (#000000)' },
+      { val: '1', colorName: 'TRẮNG (#FFFFFF)' },
+      { val: '0', colorName: 'ĐEN (#000000)' },
+      { val: '1', colorName: 'TRẮNG (#FFFFFF)' }
+    ];
+
+    function setStatus(msg) {
+      document.getElementById('statusLog').innerText = msg;
+    }
+
+    function setGuide(msg) {
+      document.getElementById('guideText').innerText = msg;
+    }
+
+    function nextGlowStep() {
+      if (typeof h5gg === 'undefined') {
+        alert("Lỗi: H5GG chưa được inject vào game!");
+        return;
+      }
+
+      const btn = document.getElementById('actionBtn');
+      const input = document.getElementById('glowValInput');
+
+      if (currentStep === 1) {
+        setStatus("Đang quét an toàn...");
+        h5gg.clearResults();
+        
+        // Quét trong dải bộ nhớ an toàn (tránh treo máy)
+        h5gg.searchNumber('1', 'F32', MEM_START, MEM_END);
+        let count = h5gg.getResultsCount();
+
+        // Dự phòng nếu vùng nhớ nằm ngoài dải hẹp
+        if (count === 0) {
+          h5gg.searchNumber('1', 'F32', '0x180000000', '0x200000000');
+          count = h5gg.getResultsCount();
+        }
+
+        if (count === 0) {
+          alert("Không tìm thấy giá trị 1! Hãy chắc chắn bạn đã kéo thanh màu về trắng hoàn toàn (#FFFFFF).");
+          setStatus("Quét thất bại");
+          return;
+        }
+
+        currentStep = 2;
+        updateUIForStep(currentStep, count);
+      } 
+      else if (currentStep >= 2 && currentStep <= 7) {
+        let currentTarget = sequence[currentStep - 1].val;
+        setStatus(`Đang lọc Float ${currentTarget}...`);
+        
+        // Lọc trong danh sách cũ
+        h5gg.searchNumber(currentTarget, 'F32', '0x00000000', '0x200000000');
+        let count = h5gg.getResultsCount();
+
+        if (count === 0) {
+          alert(`Lọc thất bại ở bước ${currentStep}! Vui lòng thử lại.`);
+          resetGlowSteps();
+          return;
+        }
+
+        if (currentStep === 7) {
+          currentStep = 8;
+          setGuide(`✅ ĐÃ LỌC XONG (Còn ${count} kết quả)!\n\nNhập độ sáng phát sáng (mặc định: 8) rồi bấm Kích Hoạt.`);
+          input.style.display = "block";
+          btn.innerText = "Kích Hoạt Phát Sáng (Set = 8)";
+          btn.className = "btn btn-glow";
+          setStatus(`Còn ${count} địa chỉ`);
+        } else {
+          currentStep++;
+          updateUIForStep(currentStep, count);
+        }
+      } 
+      else if (currentStep === 8) {
+        let val = input.value.trim();
+        if (!val || isNaN(val)) {
+          alert("Vui lòng nhập giá trị số hợp lệ!");
+          return;
+        }
+
+        h5gg.editAll(val, 'F32');
+        alert(`THÀNH CÔNG!\nĐã chỉnh độ sáng thành ${val}.\n👉 Chạm nhẹ vào thanh màu hoặc đổi góc nhìn để xe phát sáng rực lên!`);
+        setStatus("Mod thành công!");
+        resetGlowSteps();
+      }
+    }
+
+    function updateUIForStep(stepIndex, count) {
+      const btn = document.getElementById('actionBtn');
+      const nextTarget = sequence[stepIndex - 1];
+      setGuide(`Còn ${count} kết quả.\n👉 Bây giờ hãy kéo màu về ${nextTarget.colorName}, rồi bấm nút dưới.`);
+      btn.innerText = `Bước ${stepIndex}: Lọc Màu ${nextTarget.val === '1' ? 'Trắng' : 'Đen'} (F32 = ${nextTarget.val})`;
+      setStatus(`Còn ${count} kết quả`);
+    }
+
+    function resetGlowSteps() {
+      currentStep = 1;
+      const input = document.getElementById('glowValInput');
+      const btn = document.getElementById('actionBtn');
+      input.style.display = "none";
+      input.value = "8";
+      btn.className = "btn btn-green";
+      btn.innerText = "Bước 1: Quét Màu Trắng (F32 = 1)";
+      setGuide("Chọn màu Cản/Spoiler, kéo về TRẮNG (#FFFFFF) rồi bấm nút dưới.");
+      setStatus("Sẵn sàng");
+    }
+  </script>
+</body>
+</html>
