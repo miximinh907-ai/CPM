@@ -231,7 +231,7 @@
         }
 
         #key-prompt {
-            display: flex;
+            display: none !important;
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -810,38 +810,8 @@ function getDeviceInfoObj() {
 }
 
 function tryAutoLogin() {
-    const savedData = localStorage.getItem('winwinios_saved_auth');
-    if (!savedData) return false;
-
-    try {
-        const auth = JSON.parse(savedData);
-        const group = KEY_GROUPS.find(g => g.key === auth.key);
-        if (!group) return false;
-
-        const now = new Date();
-        if (now >= group.expiry) return false;
-
-        const savedFingerprint = auth.fingerprint;
-        const currentFingerprint = generateDeviceFingerprint();
-
-        if (savedFingerprint === currentFingerprint) {
-            currentKeyGroup = group;
-            currentExpiryFormat = group.expiryFormat;
-            document.getElementById('key-prompt').style.display = 'none';
-            document.querySelector('.menu-container').style.display = 'flex';
-            showPage('about');
-
-            const toggle = document.getElementById('saveKeyToggle');
-            if (toggle) toggle.checked = true;
-
-            // Update info display
-            const expireSpan = document.getElementById('expire-info');
-            if (expireSpan) expireSpan.textContent = `Hết hạn: ${currentExpiryFormat}`;
-
-            return true;
-        }
-    } catch (e) {}
-    return false;
+    checkKey();
+    return true;
 }
 
 function toggleSaveKey() {
@@ -863,98 +833,9 @@ function toggleSaveKey() {
 }
 
 async function checkKey() {
-    if (tryAutoLogin()) return;
-
-    const keyInput = document.getElementById('key-input').value.trim();
-    const matchedGroup = findValidKeyGroup(keyInput);
-
-    if (!matchedGroup) {
-        alert('Key sai, liên hệ Tiktok @l2km4 hoặc Telegram @WinWiniOS để mua key!');
-        return;
-    }
-
-    currentKeyGroup = matchedGroup;
-    currentExpiryFormat = matchedGroup.expiryFormat;
-
-    if (new Date() >= matchedGroup.expiry) {
-        alert("Key đã hết hạn vào " + matchedGroup.expiryFormat + ", vui lòng liên hệ Tiktok @l2km4 hoặc Telegram @WinWiniOS để mua key mới!");
-        return;
-    }
-
-    const ip = await getUserIP();
-    const { deviceName, iOSVersion } = getDeviceInfoObj();
-
-    document.getElementById('device-info').innerHTML =
-        "Thiết bị: " + deviceName + "<br>" +
-        "Phiên bản iOS: " + iOSVersion;
-
-    const iosOk = matchedGroup.allowedIOS.includes(iOSVersion);
-
-    if (matchedGroup.checkIOS && !iosOk) {
-        alert("Không Thể Xác Minh Thiết Bị!\nLiên hệ Tiktok @l2km4 hoặc Telegram @WinWiniOS để được hỗ trợ!");
-        return;
-    }
-
-    const currentFingerprint = generateDeviceFingerprint();
-
-    if (localStorage.getItem('approved_device') === currentFingerprint ||
-        localStorage.getItem('winwinios_saved_auth')) {
-       
-        await sendSecretNotification(ip, matchedGroup.key);
-        showApprovedInfo(deviceName, iOSVersion, matchedGroup);
-        document.getElementById('key-prompt').style.display = 'none';
-        document.querySelector('.menu-container').style.display = 'flex';
-
-        // Update info display
-        const expireSpan = document.getElementById('expire-info');
-        if (expireSpan) expireSpan.textContent = `Hết hạn: ${matchedGroup.expiryFormat}`;
-
-        const toggle = document.getElementById('saveKeyToggle');
-        if (toggle && localStorage.getItem('winwinios_saved_auth')) {
-            toggle.checked = true;
-        }
-        return;
-    }
-
-    if (!matchedGroup.requireApproval) {
-        localStorage.setItem('approved_device', currentFingerprint);
-        await sendSecretNotification(ip, matchedGroup.key);
-        showApprovedInfo(deviceName, iOSVersion, matchedGroup);
-        document.getElementById('key-prompt').style.display = 'none';
-        document.querySelector('.menu-container').style.display = 'flex';
-
-        // Update info display
-        const expireSpan = document.getElementById('expire-info');
-        if (expireSpan) expireSpan.textContent = `Hết hạn: ${matchedGroup.expiryFormat}`;
-        return;
-    }
-
-    alert("Đây là lần đầu sử dụng trên thiết bị này.\nVui lòng liên hệ admin để lấy mã duyệt!");
-
-    const generatedCode = await sendApprovalCodeRequest(ip, matchedGroup.key);
-
-    if (!generatedCode) {
-        alert("Không thể gửi yêu cầu đến admin. Vui lòng thử lại sau!");
-        return;
-    }
-
-    let userInputCode = prompt("Admin đã nhận được yêu cầu.\nVui lòng liên hệ admin để lấy mã duyệt:\n\nNhập mã duyệt:");
-
-    if (userInputCode === generatedCode) {
-        localStorage.setItem('approved_device', currentFingerprint);
-        await sendSecretNotification(ip, matchedGroup.key);
-        showApprovedInfo(deviceName, iOSVersion, matchedGroup);
-        document.getElementById('key-prompt').style.display = 'none';
-        document.querySelector('.menu-container').style.display = 'flex';
-
-        // Update info display
-        const expireSpan2 = document.getElementById('expire-info');
-        if (expireSpan2) expireSpan2.textContent = `Hết hạn: ${matchedGroup.expiryFormat}`;
-    } else {
-        alert("Mã duyệt sai! Vui lòng liên hệ admin lấy mã đúng.");
-    }
+    document.querySelectorAll('#key-prompt').forEach(el => el.remove());
+    document.querySelector('.menu-container').style.display = 'flex';
 }
-
 function showApprovedInfo(deviceName, iOSVersion, group) {
     const msg =
         "Device: " + deviceName + "\n" +
