@@ -83,6 +83,19 @@
       text-align: center;
       white-space: pre-line;
     }
+    .input-field {
+      width: 100%;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      background: rgba(15, 23, 42, 0.8);
+      color: #38bdf8;
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 6px;
+      text-align: center;
+      outline: none;
+    }
     .action-btn {
       width: 100%;
       padding: 9px 4px;
@@ -120,16 +133,17 @@
     </div>
 
     <div class="content-area">
-      <!-- TAB 1: REMOVE BUMPER (GỠ CẢN TRƯỚC) -->
+      <!-- TAB 1: GỠ CẢN TRƯỚC (ANTI-CRASH) -->
       <div id="bumperTab" class="tab-panel active">
-        <div class="guide-box" id="guideBumper">👉 Chọn xe mặc định $\rightarrow$ Vào Body cản trước $\rightarrow$ Chọn CẢN SỐ 1 rồi bấm nút bên dưới:</div>
-        <button class="action-btn btn-green" id="btnBumperAction" onclick="nextBumperStep()">Bước 1: Quét Cản 1 (D-Word = 0)</button>
+        <div class="guide-box" id="guideBumper">👉 Bấm chọn CẢN SỐ 2 trong game trước rồi bấm nút bên dưới:</div>
+        <button class="action-btn btn-green" id="btnBumperAction" onclick="nextBumperStep()">Bước 1: Quét Cản 2 (I32 = 1)</button>
         <button class="action-btn btn-red" onclick="resetBumperSteps()">Làm lại từ đầu</button>
       </div>
 
       <!-- TAB 2: MOD BODY -->
       <div id="bodyTab" class="tab-panel">
         <div class="guide-box" id="guideBody">Bấm chọn CẢN SỐ 2 trong game rồi bấm nút bên dưới.</div>
+        <input type="number" id="inputBody" class="input-field" placeholder="Nhập ID Body..." style="display:none;">
         <button class="action-btn btn-green" id="btnBody" onclick="nextBodyStep()">Bước 1: Quét Cản 2 (I32 = 1)</button>
         <button class="action-btn btn-red" onclick="resetBodySteps()">Làm lại từ đầu</button>
       </div>
@@ -162,7 +176,7 @@
       setStatus("Đã chuyển tab");
     }
 
-    // ================= LOGIC REMOVE BUMPER (GỠ CẢN TRƯỚC: 0 -> 1 -> 2 ... -> -1) =================
+    // ================= LOGIC GỠ CẢN TRƯỚC (ANTI-CRASH) =================
     let stepBumper = 1;
 
     function nextBumperStep() {
@@ -172,49 +186,59 @@
       const guide = document.getElementById('guideBumper');
 
       if (stepBumper === 1) {
-        setStatus("Đang quét Cản 1 (D-Word: 0)...");
-        h5gg.clearResults();
-        h5gg.searchNumber('0', 'I32', ANON_MIN, ANON_MAX);
-        let count = h5gg.getResultsCount();
-        
-        if (count === 0) { 
-          alert("Không tìm thấy kết quả! Hãy chọn Cản số 1 rồi thử lại."); 
-          return; 
-        }
+        setStatus("Đang quét cản 2 (I32 = 1)...");
+        setTimeout(() => {
+          h5gg.clearResults();
+          h5gg.searchNumber('1', 'I32', ANON_MIN, ANON_MAX);
+          let count = h5gg.getResultsCount();
+          
+          if (count === 0) { 
+            alert("Không tìm thấy kết quả! Hãy chắc chắn bạn đã bấm chọn Cản số 2."); 
+            return; 
+          }
 
-        stepBumper = 2;
-        guide.innerText = `Tìm thấy ${count} kết quả.\n👉 Trong game chọn CẢN SỐ 2 rồi bấm nút dưới:`;
-        btn.innerText = "Bước 2: Lọc Cản 2 (D-Word = 1)";
-        btn.className = "action-btn btn-orange";
-        setStatus(`Còn ${count} kết quả`);
-      } 
-      else if (stepBumper >= 2) {
-        let currentSearchVal = (stepBumper - 1).toString();
-        setStatus(`Đang lọc Cản ${stepBumper} (D-Word: ${currentSearchVal})...`);
-        
-        h5gg.searchNumber(currentSearchVal, 'I32', ANON_MIN, ANON_MAX);
-        let count = h5gg.getResultsCount();
-
-        if (count === 0) {
-          alert("Lọc thất bại! Hãy chắc chắn bạn đã chọn đúng cản trong game.");
-          resetBumperSteps();
-          return;
-        }
-
-        if (count === 1) {
-          // Khi chỉ còn duy nhất 1 address
-          h5gg.editAll('-1', 'I32');
-          alert("✅ GỠ CẢN THÀNH CÔNG!\n\nĐã khóa đúng 1 Address và đổi thành -1.\nCản trước của xe đã được gỡ bỏ hoàn toàn!");
-          setStatus("Đã gỡ cản (-1)");
-          resetBumperSteps();
-        } else {
-          stepBumper++;
-          let nextVal = stepBumper - 1;
-          guide.innerText = `Còn ${count} địa chỉ.\n👉 Trong game chọn tiếp CẢN SỐ ${stepBumper} rồi bấm nút dưới:`;
-          btn.innerText = `Bước ${stepBumper}: Lọc Cản ${stepBumper} (D-Word = ${nextVal})`;
+          stepBumper = 2;
+          guide.innerText = `Tìm thấy ${count} kết quả.\n👉 Chọn CẢN SỐ 3 rồi bấm nút dưới:`;
+          btn.innerText = "Bước 2: Lọc Cản 3 (I32 = 2)";
           btn.className = "action-btn btn-orange";
           setStatus(`Còn ${count} kết quả`);
-        }
+        }, 80);
+      } 
+      else if (stepBumper >= 2 && stepBumper <= 5) {
+        let currentSearchVal = stepBumper.toString();
+        setStatus(`Đang lọc Cản ${stepBumper + 1} (I32: ${currentSearchVal})...`);
+        
+        setTimeout(() => {
+          h5gg.searchNumber(currentSearchVal, 'I32', ANON_MIN, ANON_MAX);
+          let count = h5gg.getResultsCount();
+
+          if (count === 0) {
+            alert("Lọc thất bại! Hãy làm lại.");
+            resetBumperSteps();
+            return;
+          }
+
+          if (count <= 3 || stepBumper === 5) {
+            stepBumper = 6;
+            guide.innerText = `✅ ĐÃ KHÓA SẠCH ${count} ĐỊA CHỈ!\n👉 Bấm nút bên dưới để gỡ bỏ hoàn toàn cản trước:`;
+            btn.innerText = "Kích Hoạt: Gỡ Cản (Set = -1)";
+            btn.className = "action-btn btn-purple";
+            setStatus(`Khóa ${count} địa chỉ chuẩn`);
+          } else {
+            stepBumper++;
+            let nextVal = stepBumper;
+            guide.innerText = `Còn ${count} địa chỉ.\n👉 Chọn CẢN SỐ ${stepBumper + 1} rồi bấm nút:`;
+            btn.innerText = `Bước ${stepBumper}: Lọc Cản ${stepBumper + 1} (I32 = ${nextVal})`;
+            btn.className = "action-btn btn-orange";
+            setStatus(`Còn ${count} kết quả`);
+          }
+        }, 80);
+      }
+      else if (stepBumper === 6) {
+        h5gg.editAll('-1', 'I32');
+        alert("✅ GỠ CẢN TRƯỚC THÀNH CÔNG!\n\nCản trước đã được xóa bỏ hoàn toàn (-1).");
+        setStatus("Gỡ cản thành công");
+        resetBumperSteps();
       }
     }
 
@@ -222,9 +246,9 @@
       hideKeyboard();
       stepBumper = 1;
       const btn = document.getElementById('btnBumperAction');
-      btn.innerText = "Bước 1: Quét Cản 1 (D-Word = 0)";
+      btn.innerText = "Bước 1: Quét Cản 2 (I32 = 1)";
       btn.className = "action-btn btn-green";
-      document.getElementById('guideBumper').innerText = "👉 Chọn xe mặc định $\\rightarrow$ Vào Body cản trước $\\rightarrow$ Chọn CẢN SỐ 1 rồi bấm nút bên dưới:";
+      document.getElementById('guideBumper').innerText = "👉 Bấm chọn CẢN SỐ 2 trong game trước rồi bấm nút bên dưới:";
       setStatus("Sẵn sàng");
     }
 
@@ -234,31 +258,39 @@
       if (typeof h5gg === 'undefined') { alert("H5GG chưa load!"); return; }
       hideKeyboard();
       const btn = document.getElementById('btnBody');
+      const input = document.getElementById('inputBody');
       const guide = document.getElementById('guideBody');
 
       if (stepBody === 1) {
         setStatus("Đang quét cản 2...");
-        h5gg.clearResults();
-        h5gg.searchNumber('1', 'I32', '0x00000000', '0x200000000');
-        let count = h5gg.getResultsCount();
-        if (count === 0) { alert("Không tìm thấy!"); return; }
-        stepBody = 2;
-        guide.innerText = `Tìm thấy ${count} kết quả.\n👉 Chọn CẢN SỐ 3 rồi bấm nút dưới.`;
-        btn.innerText = "Bước 2: Lọc Cản 3 (Refine 2)";
+        setTimeout(() => {
+          h5gg.clearResults();
+          h5gg.searchNumber('1', 'I32', ANON_MIN, ANON_MAX);
+          let count = h5gg.getResultsCount();
+          if (count === 0) { alert("Không tìm thấy!"); return; }
+          stepBody = 2;
+          guide.innerText = `Tìm thấy ${count} kết quả.\n👉 Chọn CẢN SỐ 3 rồi bấm nút dưới.`;
+          btn.innerText = "Bước 2: Lọc Cản 3 (Refine 2)";
+        }, 80);
       } else if (stepBody >= 2 && stepBody <= 5) {
-        h5gg.searchNumber(stepBody.toString(), 'I32', '0x00000000', '0x200000000');
-        let count = h5gg.getResultsCount();
-        if (count === 0) { alert("Lọc thất bại!"); resetBodySteps(); return; }
-        stepBody++;
-        guide.innerText = `Còn ${count} kết quả.\n👉 Chọn CẢN SỐ ${stepBody} rồi bấm nút dưới.`;
-        btn.innerText = `Bước ${stepBody - 1}: Lọc Cản ${stepBody}`;
+        setTimeout(() => {
+          h5gg.searchNumber(stepBody.toString(), 'I32', ANON_MIN, ANON_MAX);
+          let count = h5gg.getResultsCount();
+          if (count === 0) { alert("Lọc thất bại!"); resetBodySteps(); return; }
+          stepBody++;
+          guide.innerText = `Còn ${count} kết quả.\n👉 Chọn CẢN SỐ ${stepBody} rồi bấm nút dưới.`;
+          btn.innerText = `Bước ${stepBody - 1}: Lọc Cản ${stepBody}`;
+        }, 80);
       } else if (stepBody === 6) {
         stepBody = 7;
-        guide.innerText = "👉 Ra gara chọn xe muốn độ Body rồi bấm Áp Dụng:";
+        guide.innerText = "👉 Ra gara chọn xe muốn độ Body.\n👉 Nhập ID Body vào ô dưới rồi bấm Áp Dụng:";
+        input.style.display = "block";
         btn.innerText = "Áp Dụng ID Body";
         btn.className = "action-btn btn-orange";
       } else if (stepBody === 7) {
-        h5gg.editAll('-1', 'I32');
+        let val = input.value.trim();
+        if (!val || isNaN(val)) { alert("Vui lòng nhập ID hợp lệ!"); return; }
+        h5gg.editAll(val, 'I32');
         alert("ĐÃ MOD BODY THÀNH CÔNG!");
         resetBodySteps();
       }
@@ -267,6 +299,8 @@
     function resetBodySteps() {
       hideKeyboard();
       stepBody = 1;
+      document.getElementById('inputBody').style.display = "none";
+      document.getElementById('inputBody').value = "";
       document.getElementById('btnBody').innerText = "Bước 1: Quét Cản 2 (I32 = 1)";
       document.getElementById('btnBody').className = "action-btn btn-green";
       document.getElementById('guideBody').innerText = "Bấm chọn CẢN SỐ 2 trong game rồi bấm nút bên dưới.";
