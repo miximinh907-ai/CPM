@@ -31,7 +31,7 @@
       width: 105px;
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 6px;
       border-right: 1px solid rgba(255, 255, 255, 0.1);
       padding-right: 8px;
     }
@@ -46,7 +46,7 @@
       line-height: 1.2;
     }
     .nav-btn {
-      padding: 8px 4px;
+      padding: 9px 4px;
       font-size: 10px;
       font-weight: 600;
       border: none;
@@ -127,17 +127,22 @@
   <div class="layout-container">
     <div class="sidebar">
       <div class="brand-title">MOD CPK<br>v4.9.7</div>
-      <button class="nav-btn active" onclick="switchNav('walkTab', this)">Mod Di Chuyển</button>
+      <button class="nav-btn active" onclick="switchNav('copyTab', this)">Sao Chép Xe</button>
       <button class="nav-btn" onclick="switchNav('bodyTab', this)">Mod Body</button>
       <button class="nav-btn" onclick="switchNav('glowTab', this)">Phát Sáng</button>
     </div>
 
     <div class="content-area">
-      <!-- TAB 1: MOD DI CHUYỂN NEARBY -->
-      <div id="walkTab" class="tab-panel active">
-        <div class="guide-box" id="guideWalk">👉 Hãy vào map chơi rồi bấm nút bên dưới để quét Nearby:</div>
-        <button class="action-btn btn-green" id="btnWalkAction" onclick="nextWalkNearbyStep()">Bước 1: Quét Gốc -10 (F32)</button>
-        <button class="action-btn btn-red" onclick="resetWalkSteps()">Làm lại từ đầu</button>
+      <!-- TAB 1: SAO CHÉP XE (CAR COPY) -->
+      <div id="copyTab" class="tab-panel active">
+        <div class="guide-box" id="guideCopy">
+          👉 Vào phòng Online, đứng cạnh xe muốn copy.
+          👉 Nhập ID mẫu xe của bạn (VD: xe 1 mang ID 0):
+        </div>
+        <input type="number" id="inputCopySelf" class="input-field" placeholder="ID xe của bạn (VD: 0, 1)...">
+        <input type="number" id="inputCopyTarget" class="input-field" placeholder="ID xe muốn copy..." style="display:none;">
+        <button class="action-btn btn-green" id="btnCopyAction" onclick="processCarCopy()">Bước 1: Quét Khóa Slot Xe</button>
+        <button class="action-btn btn-red" onclick="resetCarCopy()">Làm lại</button>
       </div>
 
       <!-- TAB 2: MOD BODY -->
@@ -176,66 +181,66 @@
       setStatus("Đã chuyển tab");
     }
 
-    // ================= LOGIC MOD DI CHUYỂN (NEARBY SEARCH F32) =================
-    let stepWalk = 1;
+    // ================= LOGIC SAO CHÉP XE (CAR COPY) =================
+    let stepCopy = 1;
 
-    function nextWalkNearbyStep() {
+    function processCarCopy() {
       if (typeof h5gg === 'undefined') { alert("H5GG chưa load!"); return; }
       hideKeyboard();
-      const btn = document.getElementById('btnWalkAction');
-      const guide = document.getElementById('guideWalk');
+      const inputSelf = document.getElementById('inputCopySelf');
+      const inputTarget = document.getElementById('inputCopyTarget');
+      const btn = document.getElementById('btnCopyAction');
+      const guide = document.getElementById('guideCopy');
 
-      if (stepWalk === 1) {
-        setStatus("Đang quét gốc -10...");
+      if (stepCopy === 1) {
+        let selfVal = inputSelf.value.trim();
+        if (!selfVal || isNaN(selfVal)) {
+          alert("Vui lòng nhập ID xe hiện tại của bạn!");
+          return;
+        }
+
+        setStatus(`Đang quét Slot ID ${selfVal}...`);
         h5gg.clearResults();
-        h5gg.searchNumber('-10', 'F32', ANON_MIN, ANON_MAX);
-        let count = h5gg.getResultsCount();
-        if (count === 0) { alert("Không tìm thấy giá trị -10! Hãy chắc chắn đang ở trong map."); return; }
-        
-        stepWalk = 2;
-        guide.innerText = `Tìm thấy ${count} kết quả.\n👉 Bấm tiếp để tìm lân cận (Nearby) giá trị 49:`;
-        btn.innerText = "Bước 2: Tìm Lân Cận 49 (F32)";
-        btn.className = "action-btn btn-orange";
-        setStatus(`Còn ${count} kết quả`);
-      } else if (stepWalk === 2) {
-        setStatus("Đang quét lân cận 49 (Khoảng cách 0x100)...");
-        // Dùng hàm searchNearby tìm 49 trong phạm vi lân cận
-        h5gg.searchNearby('49', 'F32', '0x100');
-        let count = h5gg.getResultsCount();
-        if (count === 0) { alert("Không tìm thấy giá trị lân cận 49!"); resetWalkSteps(); return; }
+        h5gg.searchNumber(selfVal, 'I32', '0x00000000', '0x200000000');
 
-        stepWalk = 3;
-        guide.innerText = `Còn ${count} kết quả.\n👉 Bấm tiếp để khóa lại lân cận giá trị -10:`;
-        btn.innerText = "Bước 3: Khóa Lân Cận -10 (F32)";
-        btn.className = "action-btn btn-orange";
-        setStatus(`Còn ${count} kết quả`);
-      } else if (stepWalk === 3) {
-        setStatus("Đang quét lân cận -10...");
-        // Khóa lại giá trị -10 trong cụm đó
-        h5gg.searchNearby('-10', 'F32', '0x100');
         let count = h5gg.getResultsCount();
-        if (count === 0) { alert("Lọc thất bại!"); resetWalkSteps(); return; }
+        if (count === 0) {
+          alert("Không tìm thấy dữ liệu xe! Hãy kiểm tra lại ID.");
+          return;
+        }
 
-        stepWalk = 4;
-        guide.innerText = `✅ ĐÃ KHÓA CHUẨN ${count} ĐỊA CHỈ!\n👉 Bấm nút bên dưới để áp dụng giá trị 999:`;
-        btn.innerText = "Bước 4: Kích Hoạt (Set = 999)";
+        stepCopy = 2;
+        guide.innerText = `✅ Đã khóa ${count} địa chỉ xe của bạn.\n👉 Nhập ID xe của người bạn muốn copy vào ô dưới:`;
+        inputSelf.style.display = 'none';
+        inputTarget.style.display = 'block';
+        btn.innerText = "Bước 2: Ghi Đè Sao Chép Xe";
         btn.className = "action-btn btn-purple";
-        setStatus(`Khóa ${count} địa chỉ`);
-      } else if (stepWalk === 4) {
-        h5gg.editAll('999', 'F32');
-        alert("✅ KÍCH HOẠT THÀNH CÔNG!\nĐã cập nhật giá trị di chuyển sang 999.");
-        setStatus("Kích hoạt hoàn tất (999)");
-        resetWalkSteps();
+        setStatus(`Khóa ${count} địa chỉ xe`);
+      } 
+      else if (stepCopy === 2) {
+        let targetVal = inputTarget.value.trim();
+        if (!targetVal || isNaN(targetVal)) {
+          alert("Vui lòng nhập ID xe muốn sao chép!");
+          return;
+        }
+
+        h5gg.editAll(targetVal, 'I32');
+        alert(`🚗 SAO CHÉP XE THÀNH CÔNG!\n\nĐã đồng bộ sang ID xe: ${targetVal}.\n👉 Lái xe ra vào lại gara hoặc đổi phòng để game load toàn bộ Decal/Body!`);
+        setStatus("Sao chép hoàn tất");
+        resetCarCopy();
       }
     }
 
-    function resetWalkSteps() {
+    function resetCarCopy() {
       hideKeyboard();
-      stepWalk = 1;
-      const btn = document.getElementById('btnWalkAction');
-      btn.innerText = "Bước 1: Quét Gốc -10 (F32)";
-      btn.className = "action-btn btn-green";
-      document.getElementById('guideWalk').innerText = "👉 Hãy vào map chơi rồi bấm nút bên dưới để quét Nearby:";
+      stepCopy = 1;
+      document.getElementById('inputCopySelf').style.display = 'block';
+      document.getElementById('inputCopySelf').value = '';
+      document.getElementById('inputCopyTarget').style.display = 'none';
+      document.getElementById('inputCopyTarget').value = '';
+      document.getElementById('btnCopyAction').innerText = "Bước 1: Quét Khóa Slot Xe";
+      document.getElementById('btnCopyAction').className = "action-btn btn-green";
+      document.getElementById('guideCopy').innerText = "👉 Vào phòng Online, đứng cạnh xe muốn copy.\n👉 Nhập ID mẫu xe của bạn (VD: xe 1 mang ID 0):";
       setStatus("Sẵn sàng");
     }
 
