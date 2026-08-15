@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>CPM Pro Glow Mod</title>
+  <title>CPM Pro Cheat</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     body {
-      background: rgba(13, 17, 23, 0.9);
+      background: rgba(13, 17, 23, 0.92);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       color: #f8fafc;
@@ -120,7 +120,6 @@
     }
     .btn-green { background: linear-gradient(135deg, #10b981, #059669); }
     .btn-orange { background: linear-gradient(135deg, #f97316, #ea580c); }
-    .btn-glow { background: linear-gradient(135deg, #a855f7, #7c3aed); }
     .btn-red { 
       background: rgba(239, 68, 68, 0.15); 
       color: #f87171; 
@@ -177,8 +176,9 @@
   <div class="status-bar" id="statusLog">Sẵn sàng hoạt động</div>
 
   <script>
-    const ANON_MIN = '0x100000000';
-    const ANON_MAX = '0x200000000';
+    // Dải RAM Il2Cpp Heap chuẩn (chống tràn 1.3 triệu kết quả)
+    const TARGET_MIN = '0x110000000';
+    const TARGET_MAX = '0x130000000';
 
     function setStatus(msg) {
       document.getElementById('statusLog').innerText = msg;
@@ -271,7 +271,7 @@
     }
 
     // ==========================================
-    // 2. LOGIC MOD PHÁT SÁNG THEO MÀU
+    // 2. LOGIC MOD PHÁT SÁNG THEO MÀU (TỐI ƯU DẢI RAM)
     // ==========================================
     let stepGlow = 1;
     let savedAddresses = [];
@@ -290,24 +290,32 @@
       const picker = document.getElementById('colorPickerGroup');
 
       if (stepGlow === 1) {
-        setStatus("Đang quét Anonymous...");
+        setStatus("Đang quét an toàn...");
         setTimeout(() => {
           h5gg.clearResults();
-          h5gg.searchNumber('1', 'F32', ANON_MIN, ANON_MAX);
+          // Quét dải hẹp mục tiêu để số lượng kết quả dưới 2.000
+          h5gg.searchNumber('1', 'F32', TARGET_MIN, TARGET_MAX);
           let count = h5gg.getResultsCount();
-          if (count === 0) { alert("Không tìm thấy giá trị 1! Kéo màu về TRẮNG (#FFFFFF)."); return; }
+          
+          // Dự phòng nếu máy nằm ở dải liền kề
+          if (count === 0) {
+            h5gg.searchNumber('1', 'F32', '0x130000000', '0x150000000');
+            count = h5gg.getResultsCount();
+          }
+
+          if (count === 0) { alert("Không tìm thấy giá trị 1! Hãy chắc chắn đã kéo màu về TRẮNG (#FFFFFF)."); return; }
           stepGlow = 2;
           guide.innerText = `Còn ${count} kết quả.\n👉 Bây giờ kéo màu về ĐEN (#000000) rồi bấm nút dưới.`;
           btn.innerText = "Bước 2: Lọc Màu Đen (F32 = 0)";
           setStatus(`Còn ${count} kết quả`);
-        }, 100);
+        }, 80);
       } else if (stepGlow >= 2 && stepGlow <= 7) {
         let currentTarget = sequenceGlow[stepGlow - 1].val;
         setStatus(`Đang lọc Float ${currentTarget}...`);
         setTimeout(() => {
-          h5gg.searchNumber(currentTarget, 'F32', ANON_MIN, ANON_MAX);
+          h5gg.searchNumber(currentTarget, 'F32', '0x00000000', '0x200000000');
           let count = h5gg.getResultsCount();
-          if (count === 0) { alert(`Lọc thất bại!`); resetGlowSteps(); return; }
+          if (count === 0) { alert(`Lọc thất bại! Vui lòng thử lại.`); resetGlowSteps(); return; }
           if (stepGlow === 7) {
             stepGlow = 8;
             savedAddresses = h5gg.getResults(count);
@@ -323,7 +331,7 @@
             btn.innerText = `Bước ${stepGlow}: Lọc Màu ${nextTarget.val === '1' ? 'Trắng' : 'Đen'} (F32 = ${nextTarget.val})`;
             setStatus(`Còn ${count} kết quả`);
           }
-        }, 100);
+        }, 80);
       }
     }
 
@@ -336,10 +344,8 @@
         return;
       }
 
-      // Mỗi cụm màu RGBA gồm 3 float liên tiếp: [0]=R, [4]=G, [8]=B
       savedAddresses.forEach(item => {
         let baseAddr = item.address;
-        
         let rVal = 0, gVal = 0, bVal = 0;
         if (color === 'red') { rVal = brightness; gVal = 0; bVal = 0; }
         else if (color === 'green') { rVal = 0; gVal = brightness; bVal = 0; }
