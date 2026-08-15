@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>CPM Mod Menu All-In-One</title>
+  <title>CPM Mod Menu Glitch</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -100,7 +99,7 @@
       text-align: center;
       display: none;
     }
-    #inputHp { display: block; }
+    #inputGlitch { display: block; }
   </style>
 </head>
 <body>
@@ -108,20 +107,20 @@
   <h3>CPM ALL-IN-ONE MENU</h3>
 
   <div class="tabs">
-    <button class="tab-btn active" id="tabBtnBody" onclick="switchTab('body')">Mod Body</button>
+    <button class="tab-btn" id="tabBtnBody" onclick="switchTab('body')">Mod Body</button>
     <button class="tab-btn" id="tabBtnGlow" onclick="switchTab('glow')">Phát Sáng</button>
-    <button class="tab-btn" id="tabBtnHp" onclick="switchTab('hp')">Mod HP</button>
+    <button class="tab-btn active" id="tabBtnGlitch" onclick="switchTab('glitch')">Glitch Car</button>
   </div>
 
   <!-- TAB 1: MOD BODY XE -->
-  <div id="tabBody" class="tab-content active">
+  <div id="tabBody" class="tab-content">
     <div class="guide" id="guideBody">Bấm chọn CẢN SỐ 2 trong game rồi bấm nút bên dưới.</div>
     <input type="number" id="inputBody" placeholder="Nhập ID Body muốn mod...">
     <button class="btn btn-green" id="btnBody" onclick="nextBodyStep()">Bước 1: Quét Cản 2 (Search 1)</button>
     <button class="btn btn-red" onclick="resetBodySteps()">Làm lại từ đầu</button>
   </div>
 
-  <!-- TAB 2: MOD PHÁT SÁNG (ANONYMOUS & FLOAT) -->
+  <!-- TAB 2: MOD PHÁT SÁNG -->
   <div id="tabGlow" class="tab-content">
     <div class="guide" id="guideGlow">Kéo màu chi tiết về TRẮNG (#FFFFFF) rồi bấm nút dưới.</div>
     <input type="number" id="inputGlow" value="8" placeholder="Độ sáng (mặc định 8)">
@@ -129,18 +128,17 @@
     <button class="btn btn-red" onclick="resetGlowSteps()">Làm lại từ đầu</button>
   </div>
 
-  <!-- TAB 3: MOD HP ĐỘNG CƠ (ANONYMOUS & FLOAT) -->
-  <div id="tabHp" class="tab-content">
-    <div class="guide" id="guideHp">👉 Vào map, mở bảng thông số HP/Nm xe rồi nhập số HP hiện tại vào ô dưới.</div>
-    <input type="number" id="inputHp" placeholder="Nhập HP hiện tại (1 - 2000)">
-    <button class="btn btn-green" id="btnHp" onclick="nextHpStep()">Bước 1: Tìm HP & Đổi thành 414</button>
-    <button class="btn btn-red" onclick="resetHpSteps()">Làm lại từ đầu</button>
+  <!-- TAB 3: GLITCH CAR (BUFF HP / TORQUE) -->
+  <div id="tabGlitch" class="tab-content active">
+    <div class="guide" id="guideGlitch">👉 Hãy mua động cơ V6 3.5 và TẤT CẢ mục OTHER. Sau đó thoát ra ngoài và nhập số HP hiện tại vào ô dưới.</div>
+    <input type="number" id="inputGlitch" placeholder="Nhập HP hiện tại...">
+    <button class="btn btn-green" id="btnGlitch" onclick="nextGlitchStep()">Bước 1: Tìm HP & Đổi 1515</button>
+    <button class="btn btn-red" onclick="resetGlitchSteps()">Làm lại từ đầu</button>
   </div>
 
   <div class="status" id="statusLog">Sẵn sàng</div>
 
   <script>
-    // Định nghĩa dải RAM Anonymous chuẩn cho iOS H5GG
     const ANON_MIN = '0x100000000';
     const ANON_MAX = '0x200000000';
 
@@ -151,11 +149,11 @@
     function switchTab(tab) {
       document.getElementById('tabBody').classList.remove('active');
       document.getElementById('tabGlow').classList.remove('active');
-      document.getElementById('tabHp').classList.remove('active');
+      document.getElementById('tabGlitch').classList.remove('active');
       
       document.getElementById('tabBtnBody').classList.remove('active');
       document.getElementById('tabBtnGlow').classList.remove('active');
-      document.getElementById('tabBtnHp').classList.remove('active');
+      document.getElementById('tabBtnGlitch').classList.remove('active');
 
       if (tab === 'body') {
         document.getElementById('tabBody').classList.add('active');
@@ -163,9 +161,9 @@
       } else if (tab === 'glow') {
         document.getElementById('tabGlow').classList.add('active');
         document.getElementById('tabBtnGlow').classList.add('active');
-      } else if (tab === 'hp') {
-        document.getElementById('tabHp').classList.add('active');
-        document.getElementById('tabBtnHp').classList.add('active');
+      } else if (tab === 'glitch') {
+        document.getElementById('tabGlitch').classList.add('active');
+        document.getElementById('tabBtnGlitch').classList.add('active');
       }
       setStatus("Đã chuyển tab");
     }
@@ -269,7 +267,6 @@
         setStatus("Đang quét Anonymous F32 = 1...");
         setTimeout(() => {
           h5gg.clearResults();
-          // Quét trong phạm vi Anonymous (ANON_MIN -> ANON_MAX)
           h5gg.searchNumber('1', 'F32', ANON_MIN, ANON_MAX);
           let count = h5gg.getResultsCount();
 
@@ -318,82 +315,137 @@
     }
 
     // ==========================================
-    // 3. LOGIC MOD HP XE (ANONYMOUS & F32)
+    // 3. LOGIC GLITCH CAR (ANONYMOUS & F32)
     // ==========================================
-    let stepHp = 1;
+    let stepGlitch = 1;
 
-    function nextHpStep() {
+    function nextGlitchStep() {
       if (typeof h5gg === 'undefined') { alert("Lỗi: H5GG chưa được inject!"); return; }
-      const btn = document.getElementById('btnHp');
-      const input = document.getElementById('inputHp');
-      const guide = document.getElementById('guideHp');
+      const btn = document.getElementById('btnGlitch');
+      const input = document.getElementById('inputGlitch');
+      const guide = document.getElementById('guideGlitch');
       let val = input.value.trim();
 
-      if (stepHp === 1) {
-        if (!val || isNaN(val) || Number(val) < 1 || Number(val) > 2000) { alert("Vui lòng nhập HP hợp lệ (1 - 2000)!"); return; }
-        setStatus(`Đang tìm Anonymous F32: ${val}...`);
+      // BƯỚC 1: Quét HP ban đầu & Lọc nếu > 20 kết quả
+      if (stepGlitch === 1) {
+        if (!val || isNaN(val)) { alert("Vui lòng nhập HP hiện tại!"); return; }
+        setStatus(`Đang quét HP: ${val}...`);
         h5gg.clearResults();
         h5gg.searchNumber(val, 'F32', ANON_MIN, ANON_MAX);
-        if (h5gg.getResultsCount() === 0) { alert("Không tìm thấy HP trong vùng Anonymous!"); return; }
-        
-        h5gg.editAll('414', 'F32');
-        stepHp = 2;
+        let count = h5gg.getResultsCount();
+
+        if (count === 0) {
+          alert(`Không tìm thấy HP ${val}! Hãy kiểm tra lại số HP.`);
+          setStatus("Không tìm thấy");
+          return;
+        }
+
+        if (count > 20) {
+          stepGlitch = 1.5;
+          guide.innerText = `Tìm thấy ${count} kết quả (> 20)!\n👉 Hãy vào mục phụ tùng MUA THÊM hoặc THÁO BỚT bất kỳ đồ nào làm HP thay đổi.\n👉 Sau đó nhập số HP mới vào ô dưới rồi bấm Lọc Tiếp.`;
+          input.value = "";
+          input.placeholder = "Nhập số HP mới sau khi đổi đồ...";
+          btn.innerText = "Lọc Tiếp HP (Refine)";
+          btn.className = "btn btn-orange";
+          setStatus(`Còn ${count} kết quả - Cần lọc tiếp`);
+          return;
+        }
+
+        // Nếu <= 20 kết quả: Đổi luôn thành 1515
+        h5gg.editAll('1515', 'F32');
+        stepGlitch = 2;
         input.value = "";
         input.placeholder = "Nhập số RPM bên cạnh HP...";
-        guide.innerText = `✅ Đã đổi HP thành 414!\n\n👉 Nhập số RPM kế bên HP vào ô dưới.`;
-        btn.innerText = "Bước 2: Tìm RPM & Đổi thành 8000";
-        btn.className = "btn btn-orange";
-      } 
-      else if (stepHp === 2) {
-        if (!val || isNaN(val)) { alert("Nhập số RPM hợp lệ!"); return; }
+        guide.innerText = `✅ Đã đổi HP thành 1515!\n\n👉 Bây giờ nhập số RPM nằm KẾ BÊN HP vào ô dưới.`;
+        btn.innerText = "Bước 2: Tìm RPM & Đổi thành 2023";
+        btn.className = "btn btn-green";
+        setStatus("Đã đổi HP -> 1515");
+      }
+      // BƯỚC PHỤ: Lọc lại HP nếu lần đầu > 20 kết quả
+      else if (stepGlitch === 1.5) {
+        if (!val || isNaN(val)) { alert("Vui lòng nhập số HP mới!"); return; }
+        setStatus(`Đang lọc lại HP: ${val}...`);
+        h5gg.searchNumber(val, 'F32', ANON_MIN, ANON_MAX);
+        let count = h5gg.getResultsCount();
+
+        if (count === 0) { alert("Lọc thất bại! Vui lòng làm lại từ đầu."); resetGlitchSteps(); return; }
+
+        if (count > 20) {
+          alert(`Vẫn còn ${count} kết quả. Hãy tiếp tục thay đổi phụ tùng để HP khác đi và nhập lại!`);
+          input.value = "";
+          return;
+        }
+
+        // Đã đạt dưới 20 kết quả -> Đổi thành 1515
+        h5gg.editAll('1515', 'F32');
+        stepGlitch = 2;
+        input.value = "";
+        input.placeholder = "Nhập số RPM bên cạnh HP...";
+        guide.innerText = `✅ Đã lọc an toàn (${count} kết quả) & đổi HP thành 1515!\n\n👉 Bây giờ nhập số RPM nằm KẾ BÊN HP vào ô dưới.`;
+        btn.innerText = "Bước 2: Tìm RPM & Đổi thành 2023";
+        btn.className = "btn btn-green";
+        setStatus("Đã đổi HP -> 1515");
+      }
+      // BƯỚC 2: Quét RPM HP -> Đổi thành 2023
+      else if (stepGlitch === 2) {
+        if (!val || isNaN(val)) { alert("Vui lòng nhập RPM kế bên HP!"); return; }
         setStatus(`Đang tìm RPM: ${val}...`);
         h5gg.clearResults();
         h5gg.searchNumber(val, 'F32', ANON_MIN, ANON_MAX);
-        if (h5gg.getResultsCount() === 0) { alert("Không tìm thấy RPM!"); return; }
+        let count = h5gg.getResultsCount();
+        if (count === 0) { alert("Không tìm thấy RPM!"); return; }
 
-        h5gg.editAll('8000', 'F32');
-        stepHp = 3;
+        h5gg.editAll('2023', 'F32');
+        stepGlitch = 3;
         input.value = "";
         input.placeholder = "Nhập số Nm (Torque)...";
-        guide.innerText = `✅ Đã đổi RPM thành 8000!\n\n👉 Nhập chỉ số lực kéo Nm (Torque) vào ô dưới.`;
-        btn.innerText = "Bước 3: Tìm Nm & Đổi thành 2300";
+        guide.innerText = `✅ Đã đổi RPM thành 2023!\n\n👉 Bây giờ nhập số lực kéo Nm (Torque) vào ô dưới.`;
+        btn.innerText = "Bước 3: Tìm Nm & Đổi thành 2257";
         btn.className = "btn btn-green";
-      } 
-      else if (stepHp === 3) {
-        if (!val || isNaN(val)) { alert("Nhập số Nm hợp lệ!"); return; }
+        setStatus("Đã đổi RPM -> 2023");
+      }
+      // BƯỚC 3: Quét Nm -> Đổi thành 2257
+      else if (stepGlitch === 3) {
+        if (!val || isNaN(val)) { alert("Vui lòng nhập số Nm!"); return; }
         setStatus(`Đang tìm Nm: ${val}...`);
         h5gg.clearResults();
         h5gg.searchNumber(val, 'F32', ANON_MIN, ANON_MAX);
-        if (h5gg.getResultsCount() === 0) { alert("Không tìm thấy Nm!"); return; }
+        let count = h5gg.getResultsCount();
+        if (count === 0) { alert("Không tìm thấy Nm!"); return; }
 
-        h5gg.editAll('2300', 'F32');
-        stepHp = 4;
+        h5gg.editAll('2257', 'F32');
+        stepGlitch = 4;
         input.value = "";
         input.placeholder = "Nhập số RPM bên cạnh Nm...";
-        guide.innerText = `✅ Đã đổi Nm thành 2300!\n\n👉 Nhập số RPM kế bên Nm vào ô dưới.`;
-        btn.innerText = "Bước 4: Tìm RPM Nm & Đổi thành 7998";
+        guide.innerText = `✅ Đã đổi Nm thành 2257!\n\n👉 Bây giờ nhập số RPM nằm KẾ BÊN Nm vào ô dưới.`;
+        btn.innerText = "Bước 4: Tìm RPM Nm & Đổi thành 2024";
         btn.className = "btn btn-orange";
-      } 
-      else if (stepHp === 4) {
-        if (!val || isNaN(val)) { alert("Nhập số RPM hợp lệ!"); return; }
+        setStatus("Đã đổi Nm -> 2257");
+      }
+      // BƯỚC 4: Quét RPM Nm -> Đổi thành 2024 & Hoàn thành
+      else if (stepGlitch === 4) {
+        if (!val || isNaN(val)) { alert("Vui lòng nhập số RPM kế bên Nm!"); return; }
         setStatus(`Đang tìm RPM Nm: ${val}...`);
         h5gg.clearResults();
         h5gg.searchNumber(val, 'F32', ANON_MIN, ANON_MAX);
-        if (h5gg.getResultsCount() === 0) { alert("Không tìm thấy giá trị!"); return; }
+        let count = h5gg.getResultsCount();
+        if (count === 0) { alert("Không tìm thấy giá trị!"); return; }
 
-        h5gg.editAll('7998', 'F32');
-        alert("Đã thay đổi hp thành công!");
-        resetHpSteps();
+        h5gg.editAll('2024', 'F32');
+
+        alert("GLITCH CAR THÀNH CÔNG!\n\n👉 Hãy quay lại mục Động Cơ (Engine) sẽ thấy các thông số đã được đổi hoàn tất.\n\n⚠️ CHÚ Ý QUAN TRỌNG:\nKhi vào map chạy nhớ BẬT ABS và STABILIZON để tránh bị mất lái / xoay xe!");
+        setStatus("Glitch hoàn tất!");
+        resetGlitchSteps();
       }
     }
 
-    function resetHpSteps() {
-      stepHp = 1;
-      document.getElementById('inputHp').value = "";
-      document.getElementById('inputHp').placeholder = "Nhập HP hiện tại (1 - 2000)";
-      document.getElementById('btnHp').className = "btn btn-green";
-      document.getElementById('btnHp').innerText = "Bước 1: Tìm HP & Đổi thành 414";
-      document.getElementById('guideHp').innerText = "👉 Vào map, mở bảng thông số HP/Nm xe rồi nhập số HP hiện tại vào ô dưới.";
+    function resetGlitchSteps() {
+      stepGlitch = 1;
+      document.getElementById('inputGlitch').value = "";
+      document.getElementById('inputGlitch').placeholder = "Nhập HP hiện tại...";
+      document.getElementById('btnGlitch').className = "btn btn-green";
+      document.getElementById('btnGlitch').innerText = "Bước 1: Tìm HP & Đổi 1515";
+      document.getElementById('guideGlitch').innerText = "👉 Hãy mua động cơ V6 3.5 và TẤT CẢ mục OTHER. Sau đó thoát ra ngoài và nhập số HP hiện tại vào ô dưới.";
       setStatus("Sẵn sàng");
     }
   </script>
