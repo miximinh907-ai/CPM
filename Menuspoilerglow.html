@@ -28,7 +28,7 @@
     }
     /* SIDEBAR */
     .sidebar {
-      width: 105px;
+      width: 110px;
       display: flex;
       flex-direction: column;
       gap: 6px;
@@ -72,7 +72,7 @@
     .tab-panel.active { display: block; }
     
     .guide-box {
-      font-size: 10px;
+      font-size: 10.5px;
       color: #cbd5e1;
       background: rgba(30, 41, 59, 0.5);
       border: 1px dashed rgba(56, 189, 248, 0.3);
@@ -114,27 +114,22 @@
   <div class="layout-container">
     <div class="sidebar">
       <div class="brand-title">MOD CPK<br>v4.9.7</div>
-      <button class="nav-btn active" onclick="switchNav('cloneTab', this)">Dupe / Clone Xe</button>
+      <button class="nav-btn active" onclick="switchNav('bumperTab', this)">Gỡ Cản Trước</button>
       <button class="nav-btn" onclick="switchNav('bodyTab', this)">Mod Body</button>
       <button class="nav-btn" onclick="switchNav('glowTab', this)">Phát Sáng</button>
     </div>
 
     <div class="content-area">
-      <!-- TAB 1: DUPE / CLONE XE KHI BÁN -->
-      <div id="cloneTab" class="tab-panel active">
-        <div class="guide-box" id="guideClone">
-          1. Lái xe cần Clone vào phòng Online.
-          2. Bấm nút kích hoạt bên dưới.
-          3. Đặt bán xe ở chợ. Khi có người mua, game tự kick bạn ra ngoài (xe vẫn còn nguyên).
-        </div>
-        <button class="action-btn btn-green" id="btnCloneAction" onclick="activateCarDupe()">Kích Hoạt Chống Mất Xe</button>
-        <button class="action-btn btn-red" onclick="resetCarDupe()">Hủy Kích Hoạt</button>
+      <!-- TAB 1: REMOVE BUMPER (GỠ CẢN TRƯỚC) -->
+      <div id="bumperTab" class="tab-panel active">
+        <div class="guide-box" id="guideBumper">👉 Chọn xe mặc định $\rightarrow$ Vào Body cản trước $\rightarrow$ Chọn CẢN SỐ 1 rồi bấm nút bên dưới:</div>
+        <button class="action-btn btn-green" id="btnBumperAction" onclick="nextBumperStep()">Bước 1: Quét Cản 1 (D-Word = 0)</button>
+        <button class="action-btn btn-red" onclick="resetBumperSteps()">Làm lại từ đầu</button>
       </div>
 
       <!-- TAB 2: MOD BODY -->
       <div id="bodyTab" class="tab-panel">
         <div class="guide-box" id="guideBody">Bấm chọn CẢN SỐ 2 trong game rồi bấm nút bên dưới.</div>
-        <input type="number" id="inputBody" class="input-field" placeholder="Nhập ID Body..." style="display:none;">
         <button class="action-btn btn-green" id="btnBody" onclick="nextBodyStep()">Bước 1: Quét Cản 2 (I32 = 1)</button>
         <button class="action-btn btn-red" onclick="resetBodySteps()">Làm lại từ đầu</button>
       </div>
@@ -167,36 +162,69 @@
       setStatus("Đã chuyển tab");
     }
 
-    // ================= LOGIC DUPE XE (BYPASS SAVE KHI BÁN) =================
-    function activateCarDupe() {
+    // ================= LOGIC REMOVE BUMPER (GỠ CẢN TRƯỚC: 0 -> 1 -> 2 ... -> -1) =================
+    let stepBumper = 1;
+
+    function nextBumperStep() {
       if (typeof h5gg === 'undefined') { alert("H5GG chưa load!"); return; }
       hideKeyboard();
-      
-      setStatus("Đang khóa luồng Save Network...");
-      
-      // Quét và can thiệp cờ trạng thái Save giao dịch trong RAM
-      h5gg.clearResults();
-      h5gg.searchNumber('1', 'I32', ANON_MIN, ANON_MAX);
-      
-      // Khóa ghi đè để game không đồng bộ trừ xe
-      h5gg.editAll('0', 'I32');
-      
-      const btn = document.getElementById('btnCloneAction');
-      btn.innerText = "✅ ĐÃ KÍCH HOẠT DUPE XE";
-      btn.className = "action-btn btn-purple";
-      
-      document.getElementById('guideClone').innerText = "✅ ĐÃ SẴN SÀNG!\n👉 Bây giờ hãy đem xe ra chợ đặt bán.\n👉 Khi khách bấm Mua, game sẽ tự văng/kick bạn ra (Xe bạn vẫn giữ nguyên 100%).";
-      setStatus("Chế độ Dupe xe: Đang Bật");
-      
-      alert("✅ ĐÃ BẬT CHẾ ĐỘ DUPE XE!\n\nHãy đem xe ra chợ bán. Khi người khác mua xong bạn sẽ bị kick ra, vào lại xe vẫn còn nguyên.");
+      const btn = document.getElementById('btnBumperAction');
+      const guide = document.getElementById('guideBumper');
+
+      if (stepBumper === 1) {
+        setStatus("Đang quét Cản 1 (D-Word: 0)...");
+        h5gg.clearResults();
+        h5gg.searchNumber('0', 'I32', ANON_MIN, ANON_MAX);
+        let count = h5gg.getResultsCount();
+        
+        if (count === 0) { 
+          alert("Không tìm thấy kết quả! Hãy chọn Cản số 1 rồi thử lại."); 
+          return; 
+        }
+
+        stepBumper = 2;
+        guide.innerText = `Tìm thấy ${count} kết quả.\n👉 Trong game chọn CẢN SỐ 2 rồi bấm nút dưới:`;
+        btn.innerText = "Bước 2: Lọc Cản 2 (D-Word = 1)";
+        btn.className = "action-btn btn-orange";
+        setStatus(`Còn ${count} kết quả`);
+      } 
+      else if (stepBumper >= 2) {
+        let currentSearchVal = (stepBumper - 1).toString();
+        setStatus(`Đang lọc Cản ${stepBumper} (D-Word: ${currentSearchVal})...`);
+        
+        h5gg.searchNumber(currentSearchVal, 'I32', ANON_MIN, ANON_MAX);
+        let count = h5gg.getResultsCount();
+
+        if (count === 0) {
+          alert("Lọc thất bại! Hãy chắc chắn bạn đã chọn đúng cản trong game.");
+          resetBumperSteps();
+          return;
+        }
+
+        if (count === 1) {
+          // Khi chỉ còn duy nhất 1 address
+          h5gg.editAll('-1', 'I32');
+          alert("✅ GỠ CẢN THÀNH CÔNG!\n\nĐã khóa đúng 1 Address và đổi thành -1.\nCản trước của xe đã được gỡ bỏ hoàn toàn!");
+          setStatus("Đã gỡ cản (-1)");
+          resetBumperSteps();
+        } else {
+          stepBumper++;
+          let nextVal = stepBumper - 1;
+          guide.innerText = `Còn ${count} địa chỉ.\n👉 Trong game chọn tiếp CẢN SỐ ${stepBumper} rồi bấm nút dưới:`;
+          btn.innerText = `Bước ${stepBumper}: Lọc Cản ${stepBumper} (D-Word = ${nextVal})`;
+          btn.className = "action-btn btn-orange";
+          setStatus(`Còn ${count} kết quả`);
+        }
+      }
     }
 
-    function resetCarDupe() {
+    function resetBumperSteps() {
       hideKeyboard();
-      const btn = document.getElementById('btnCloneAction');
-      btn.innerText = "Kích Hoạt Chống Mất Xe";
+      stepBumper = 1;
+      const btn = document.getElementById('btnBumperAction');
+      btn.innerText = "Bước 1: Quét Cản 1 (D-Word = 0)";
       btn.className = "action-btn btn-green";
-      document.getElementById('guideClone').innerText = "1. Lái xe cần Clone vào phòng Online.\n2. Bấm nút kích hoạt bên dưới.\n3. Đặt bán xe ở chợ. Khi có người mua, game tự kick bạn ra ngoài (xe vẫn còn nguyên).";
+      document.getElementById('guideBumper').innerText = "👉 Chọn xe mặc định $\\rightarrow$ Vào Body cản trước $\\rightarrow$ Chọn CẢN SỐ 1 rồi bấm nút bên dưới:";
       setStatus("Sẵn sàng");
     }
 
@@ -206,7 +234,6 @@
       if (typeof h5gg === 'undefined') { alert("H5GG chưa load!"); return; }
       hideKeyboard();
       const btn = document.getElementById('btnBody');
-      const input = document.getElementById('inputBody');
       const guide = document.getElementById('guideBody');
 
       if (stepBody === 1) {
@@ -227,14 +254,11 @@
         btn.innerText = `Bước ${stepBody - 1}: Lọc Cản ${stepBody}`;
       } else if (stepBody === 6) {
         stepBody = 7;
-        guide.innerText = "👉 Ra gara chọn xe muốn độ Body.\n👉 Nhập ID Body vào ô dưới rồi bấm Áp Dụng:";
-        input.style.display = "block";
+        guide.innerText = "👉 Ra gara chọn xe muốn độ Body rồi bấm Áp Dụng:";
         btn.innerText = "Áp Dụng ID Body";
         btn.className = "action-btn btn-orange";
       } else if (stepBody === 7) {
-        let val = input.value.trim();
-        if (!val || isNaN(val)) { alert("Vui lòng nhập ID hợp lệ!"); return; }
-        h5gg.editAll(val, 'I32');
+        h5gg.editAll('-1', 'I32');
         alert("ĐÃ MOD BODY THÀNH CÔNG!");
         resetBodySteps();
       }
@@ -243,8 +267,6 @@
     function resetBodySteps() {
       hideKeyboard();
       stepBody = 1;
-      document.getElementById('inputBody').style.display = "none";
-      document.getElementById('inputBody').value = "";
       document.getElementById('btnBody').innerText = "Bước 1: Quét Cản 2 (I32 = 1)";
       document.getElementById('btnBody').className = "action-btn btn-green";
       document.getElementById('guideBody').innerText = "Bấm chọn CẢN SỐ 2 trong game rồi bấm nút bên dưới.";
