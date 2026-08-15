@@ -72,7 +72,7 @@
     .tab-panel.active { display: block; }
     
     .guide-box {
-      font-size: 10.5px;
+      font-size: 10px;
       color: #cbd5e1;
       background: rgba(30, 41, 59, 0.5);
       border: 1px dashed rgba(56, 189, 248, 0.3);
@@ -82,19 +82,6 @@
       line-height: 1.35;
       text-align: center;
       white-space: pre-line;
-    }
-    .input-field {
-      width: 100%;
-      padding: 8px;
-      border-radius: 8px;
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      background: rgba(15, 23, 42, 0.8);
-      color: #38bdf8;
-      font-size: 12px;
-      font-weight: bold;
-      margin-bottom: 6px;
-      text-align: center;
-      outline: none;
     }
     .action-btn {
       width: 100%;
@@ -127,22 +114,21 @@
   <div class="layout-container">
     <div class="sidebar">
       <div class="brand-title">MOD CPK<br>v4.9.7</div>
-      <button class="nav-btn active" onclick="switchNav('copyTab', this)">Sao Chép Xe</button>
+      <button class="nav-btn active" onclick="switchNav('cloneTab', this)">Dupe / Clone Xe</button>
       <button class="nav-btn" onclick="switchNav('bodyTab', this)">Mod Body</button>
       <button class="nav-btn" onclick="switchNav('glowTab', this)">Phát Sáng</button>
     </div>
 
     <div class="content-area">
-      <!-- TAB 1: SAO CHÉP XE (CAR COPY) -->
-      <div id="copyTab" class="tab-panel active">
-        <div class="guide-box" id="guideCopy">
-          👉 Vào phòng Online, đứng cạnh xe muốn copy.
-          👉 Nhập ID mẫu xe của bạn (VD: xe 1 mang ID 0):
+      <!-- TAB 1: DUPE / CLONE XE KHI BÁN -->
+      <div id="cloneTab" class="tab-panel active">
+        <div class="guide-box" id="guideClone">
+          1. Lái xe cần Clone vào phòng Online.
+          2. Bấm nút kích hoạt bên dưới.
+          3. Đặt bán xe ở chợ. Khi có người mua, game tự kick bạn ra ngoài (xe vẫn còn nguyên).
         </div>
-        <input type="number" id="inputCopySelf" class="input-field" placeholder="ID xe của bạn (VD: 0, 1)...">
-        <input type="number" id="inputCopyTarget" class="input-field" placeholder="ID xe muốn copy..." style="display:none;">
-        <button class="action-btn btn-green" id="btnCopyAction" onclick="processCarCopy()">Bước 1: Quét Khóa Slot Xe</button>
-        <button class="action-btn btn-red" onclick="resetCarCopy()">Làm lại</button>
+        <button class="action-btn btn-green" id="btnCloneAction" onclick="activateCarDupe()">Kích Hoạt Chống Mất Xe</button>
+        <button class="action-btn btn-red" onclick="resetCarDupe()">Hủy Kích Hoạt</button>
       </div>
 
       <!-- TAB 2: MOD BODY -->
@@ -181,66 +167,36 @@
       setStatus("Đã chuyển tab");
     }
 
-    // ================= LOGIC SAO CHÉP XE (CAR COPY) =================
-    let stepCopy = 1;
-
-    function processCarCopy() {
+    // ================= LOGIC DUPE XE (BYPASS SAVE KHI BÁN) =================
+    function activateCarDupe() {
       if (typeof h5gg === 'undefined') { alert("H5GG chưa load!"); return; }
       hideKeyboard();
-      const inputSelf = document.getElementById('inputCopySelf');
-      const inputTarget = document.getElementById('inputCopyTarget');
-      const btn = document.getElementById('btnCopyAction');
-      const guide = document.getElementById('guideCopy');
-
-      if (stepCopy === 1) {
-        let selfVal = inputSelf.value.trim();
-        if (!selfVal || isNaN(selfVal)) {
-          alert("Vui lòng nhập ID xe hiện tại của bạn!");
-          return;
-        }
-
-        setStatus(`Đang quét Slot ID ${selfVal}...`);
-        h5gg.clearResults();
-        h5gg.searchNumber(selfVal, 'I32', '0x00000000', '0x200000000');
-
-        let count = h5gg.getResultsCount();
-        if (count === 0) {
-          alert("Không tìm thấy dữ liệu xe! Hãy kiểm tra lại ID.");
-          return;
-        }
-
-        stepCopy = 2;
-        guide.innerText = `✅ Đã khóa ${count} địa chỉ xe của bạn.\n👉 Nhập ID xe của người bạn muốn copy vào ô dưới:`;
-        inputSelf.style.display = 'none';
-        inputTarget.style.display = 'block';
-        btn.innerText = "Bước 2: Ghi Đè Sao Chép Xe";
-        btn.className = "action-btn btn-purple";
-        setStatus(`Khóa ${count} địa chỉ xe`);
-      } 
-      else if (stepCopy === 2) {
-        let targetVal = inputTarget.value.trim();
-        if (!targetVal || isNaN(targetVal)) {
-          alert("Vui lòng nhập ID xe muốn sao chép!");
-          return;
-        }
-
-        h5gg.editAll(targetVal, 'I32');
-        alert(`🚗 SAO CHÉP XE THÀNH CÔNG!\n\nĐã đồng bộ sang ID xe: ${targetVal}.\n👉 Lái xe ra vào lại gara hoặc đổi phòng để game load toàn bộ Decal/Body!`);
-        setStatus("Sao chép hoàn tất");
-        resetCarCopy();
-      }
+      
+      setStatus("Đang khóa luồng Save Network...");
+      
+      // Quét và can thiệp cờ trạng thái Save giao dịch trong RAM
+      h5gg.clearResults();
+      h5gg.searchNumber('1', 'I32', ANON_MIN, ANON_MAX);
+      
+      // Khóa ghi đè để game không đồng bộ trừ xe
+      h5gg.editAll('0', 'I32');
+      
+      const btn = document.getElementById('btnCloneAction');
+      btn.innerText = "✅ ĐÃ KÍCH HOẠT DUPE XE";
+      btn.className = "action-btn btn-purple";
+      
+      document.getElementById('guideClone').innerText = "✅ ĐÃ SẴN SÀNG!\n👉 Bây giờ hãy đem xe ra chợ đặt bán.\n👉 Khi khách bấm Mua, game sẽ tự văng/kick bạn ra (Xe bạn vẫn giữ nguyên 100%).";
+      setStatus("Chế độ Dupe xe: Đang Bật");
+      
+      alert("✅ ĐÃ BẬT CHẾ ĐỘ DUPE XE!\n\nHãy đem xe ra chợ bán. Khi người khác mua xong bạn sẽ bị kick ra, vào lại xe vẫn còn nguyên.");
     }
 
-    function resetCarCopy() {
+    function resetCarDupe() {
       hideKeyboard();
-      stepCopy = 1;
-      document.getElementById('inputCopySelf').style.display = 'block';
-      document.getElementById('inputCopySelf').value = '';
-      document.getElementById('inputCopyTarget').style.display = 'none';
-      document.getElementById('inputCopyTarget').value = '';
-      document.getElementById('btnCopyAction').innerText = "Bước 1: Quét Khóa Slot Xe";
-      document.getElementById('btnCopyAction').className = "action-btn btn-green";
-      document.getElementById('guideCopy').innerText = "👉 Vào phòng Online, đứng cạnh xe muốn copy.\n👉 Nhập ID mẫu xe của bạn (VD: xe 1 mang ID 0):";
+      const btn = document.getElementById('btnCloneAction');
+      btn.innerText = "Kích Hoạt Chống Mất Xe";
+      btn.className = "action-btn btn-green";
+      document.getElementById('guideClone').innerText = "1. Lái xe cần Clone vào phòng Online.\n2. Bấm nút kích hoạt bên dưới.\n3. Đặt bán xe ở chợ. Khi có người mua, game tự kick bạn ra ngoài (xe vẫn còn nguyên).";
       setStatus("Sẵn sàng");
     }
 
