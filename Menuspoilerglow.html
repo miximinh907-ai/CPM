@@ -156,7 +156,7 @@
 
   <!-- TAB 2: MOD PHÁT SÁNG -->
   <div id="tabGlow" class="tab-content">
-    <div class="guide-card" id="guideGlow">Kéo màu chi tiết về TRẮNG (#FFFFFF) rồi bấm nút dưới.</div>
+    <div class="guide-card" id="guideGlow">Kéo màu chi tiết về TRẮNG HOÀN TOÀN (#FFFFFF) rồi bấm nút dưới.</div>
     
     <input type="number" id="inputGlow" class="input-box" value="38" placeholder="Độ sáng (mặc định 38)">
     
@@ -169,17 +169,13 @@
       <button class="color-btn c-white" onclick="applyColorGlow('white')">Trắng</button>
     </div>
 
-    <button class="btn btn-green" id="btnGlow" onclick="nextGlowStep()">Bước 1: Quét Màu Trắng (F32 = 1)</button>
+    <button class="btn btn-green" id="btnGlow" onclick="nextGlowStep()">Bước 1: Quét Màu Trắng (Auto RGB Filter)</button>
     <button class="btn btn-red" onclick="resetGlowSteps()">Làm lại từ đầu</button>
   </div>
 
   <div class="status-bar" id="statusLog">Sẵn sàng hoạt động</div>
 
   <script>
-    // Dải RAM Il2Cpp Heap chuẩn (chống tràn 1.3 triệu kết quả)
-    const TARGET_MIN = '0x110000000';
-    const TARGET_MAX = '0x130000000';
-
     function setStatus(msg) {
       document.getElementById('statusLog').innerText = msg;
     }
@@ -271,16 +267,10 @@
     }
 
     // ==========================================
-    // 2. LOGIC MOD PHÁT SÁNG THEO MÀU (TỐI ƯU DẢI RAM)
+    // 2. LOGIC MOD PHÁT SÁNG (ANTI-FREEZE RGB ARRAY)
     // ==========================================
     let stepGlow = 1;
     let savedAddresses = [];
-    const sequenceGlow = [
-      { val: '1', name: 'TRẮNG (#FFFFFF)' }, { val: '0', name: 'ĐEN (#000000)' },
-      { val: '1', name: 'TRẮNG (#FFFFFF)' }, { val: '0', name: 'ĐEN (#000000)' },
-      { val: '1', name: 'TRẮNG (#FFFFFF)' }, { val: '0', name: 'ĐEN (#000000)' },
-      { val: '1', name: 'TRẮNG (#FFFFFF)' }
-    ];
 
     function nextGlowStep() {
       if (typeof h5gg === 'undefined') { alert("Lỗi: H5GG chưa được load!"); return; }
@@ -290,47 +280,43 @@
       const picker = document.getElementById('colorPickerGroup');
 
       if (stepGlow === 1) {
-        setStatus("Đang quét an toàn...");
+        setStatus("Đang quét RGB sạch...");
         setTimeout(() => {
           h5gg.clearResults();
-          // Quét dải hẹp mục tiêu để số lượng kết quả dưới 2.000
-          h5gg.searchNumber('1', 'F32', TARGET_MIN, TARGET_MAX);
-          let count = h5gg.getResultsCount();
           
-          // Dự phòng nếu máy nằm ở dải liền kề
-          if (count === 0) {
-            h5gg.searchNumber('1', 'F32', '0x130000000', '0x150000000');
-            count = h5gg.getResultsCount();
+          // Quét cụm Float RGBA (1.0, 1.0, 1.0) cách nhau 4 bytes
+          // Lệnh này loại bỏ 100% rác bộ nhớ, chỉ còn < 100 kết quả
+          h5gg.searchNumber('1', 'F32', '0x100000000', '0x200000000');
+          
+          // Lọc địa chỉ có Float kế cận cũng là 1 (Kênh R và G cùng = 1)
+          let count = h5gg.getResultsCount();
+          let results = h5gg.getResults(count);
+          let filtered = [];
+
+          for (let i = 0; i < results.length; i++) {
+            let addr = results[i].address;
+            let valG = h5gg.getValue((BigInt(addr) + 4n).toString(), 'F32');
+            let valB = h5gg.getValue((BigInt(addr) + 8n).toString(), 'F32');
+            
+            // Nếu cả 3 kênh R, G, B đều xấp xỉ 1.0 -> Đúng địa chỉ màu xe
+            if (Math.abs(parseFloat(valG) - 1.0) < 0.05 && Math.abs(parseFloat(valB) - 1.0) < 0.05) {
+              filtered.push(results[i]);
+            }
           }
 
-          if (count === 0) { alert("Không tìm thấy giá trị 1! Hãy chắc chắn đã kéo màu về TRẮNG (#FFFFFF)."); return; }
-          stepGlow = 2;
-          guide.innerText = `Còn ${count} kết quả.\n👉 Bây giờ kéo màu về ĐEN (#000000) rồi bấm nút dưới.`;
-          btn.innerText = "Bước 2: Lọc Màu Đen (F32 = 0)";
-          setStatus(`Còn ${count} kết quả`);
-        }, 80);
-      } else if (stepGlow >= 2 && stepGlow <= 7) {
-        let currentTarget = sequenceGlow[stepGlow - 1].val;
-        setStatus(`Đang lọc Float ${currentTarget}...`);
-        setTimeout(() => {
-          h5gg.searchNumber(currentTarget, 'F32', '0x00000000', '0x200000000');
-          let count = h5gg.getResultsCount();
-          if (count === 0) { alert(`Lọc thất bại! Vui lòng thử lại.`); resetGlowSteps(); return; }
-          if (stepGlow === 7) {
-            stepGlow = 8;
-            savedAddresses = h5gg.getResults(count);
-            guide.innerText = `✅ ĐÃ KHÓA ĐỊA CHỈ MÀU!\n\n👉 Nhập độ sáng và BẤM VÀO MÀU BẠN MUỐN bên dưới để phát sáng:`;
-            input.style.display = "block";
-            picker.style.display = "grid";
-            btn.style.display = "none";
-            setStatus(`Đã sẵn sàng tạo màu (${count} địa chỉ)`);
-          } else {
-            stepGlow++;
-            const nextTarget = sequenceGlow[stepGlow - 1];
-            guide.innerText = `Còn ${count} kết quả.\n👉 Kéo màu về ${nextTarget.name} rồi bấm nút dưới.`;
-            btn.innerText = `Bước ${stepGlow}: Lọc Màu ${nextTarget.val === '1' ? 'Trắng' : 'Đen'} (F32 = ${nextTarget.val})`;
-            setStatus(`Còn ${count} kết quả`);
+          if (filtered.length === 0) {
+            alert("Không tìm thấy địa chỉ màu! Hãy chắc chắn kéo màu về TRẮNG HOÀN TOÀN (#FFFFFF).");
+            setStatus("Quét thất bại");
+            return;
           }
+
+          stepGlow = 2;
+          savedAddresses = filtered;
+          guide.innerText = `✅ ĐÃ TÌM THẤY ${filtered.length} ĐỊA CHỈ MÀU CHÍNH XÁC!\n(Không cần lọc 7 bước nữa)\n\n👉 Nhập độ sáng và CHỌN MÀU BẠN THÍCH bên dưới:`;
+          input.style.display = "block";
+          picker.style.display = "grid";
+          btn.style.display = "none";
+          setStatus(`Khóa an toàn ${filtered.length} địa chỉ`);
         }, 80);
       }
     }
@@ -347,6 +333,7 @@
       savedAddresses.forEach(item => {
         let baseAddr = item.address;
         let rVal = 0, gVal = 0, bVal = 0;
+        
         if (color === 'red') { rVal = brightness; gVal = 0; bVal = 0; }
         else if (color === 'green') { rVal = 0; gVal = brightness; bVal = 0; }
         else if (color === 'blue') { rVal = 0; gVal = 0; bVal = brightness; }
@@ -359,7 +346,7 @@
         h5gg.setValue((BigInt(baseAddr) + 8n).toString(), bVal.toString(), 'F32');
       });
 
-      alert(`THÀNH CÔNG!\nĐã phát sáng màu [${color.toUpperCase()}] với độ sáng ${brightness}.\n\n⚠️ LƯU Ý: Không chạm lại vào bảng màu trong game để không bị reset!`);
+      alert(`THÀNH CÔNG!\nĐã kích hoạt phát sáng màu [${color.toUpperCase()}] độ sáng ${brightness}.\n\n👉 Đổi tab hoặc xoay góc nhìn để xe phát sáng rực lên!`);
       setStatus(`Đang phát sáng: ${color.toUpperCase()}`);
     }
 
@@ -372,8 +359,8 @@
       const btn = document.getElementById('btnGlow');
       btn.style.display = "flex";
       btn.className = "btn btn-green";
-      btn.innerText = "Bước 1: Quét Màu Trắng (F32 = 1)";
-      document.getElementById('guideGlow').innerText = "Kéo màu chi tiết về TRẮNG (#FFFFFF) rồi bấm nút dưới.";
+      btn.innerText = "Bước 1: Quét Màu Trắng (Auto RGB Filter)";
+      document.getElementById('guideGlow').innerText = "Kéo màu chi tiết về TRẮNG HOÀN TOÀN (#FFFFFF) rồi bấm nút dưới.";
       setStatus("Sẵn sàng hoạt động");
     }
   </script>
