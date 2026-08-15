@@ -3,233 +3,215 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Mod CPK Beta by Minh Do x Gemini</title>
+  <title>CPM Pro Menu by Minh Do x Gemini</title>
   <style>
-    * { 
-      box-sizing: border-box; 
-      margin: 0; 
-      padding: 0;
-      -webkit-tap-highlight-color: transparent;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     body {
-      background: rgba(13, 17, 23, 0.88);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
       color: #f8fafc;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      padding: 14px;
-      border-radius: 18px;
+      padding: 10px;
+      border-radius: 16px;
       user-select: none;
       -webkit-user-select: none;
       border: 1px solid rgba(56, 189, 248, 0.25);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 15px rgba(56, 189, 248, 0.15);
-      width: 290px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+      width: 360px;
+      font-size: 11px;
     }
-    .header {
-      text-align: center;
-      margin-bottom: 12px;
-      position: relative;
+    .layout-container {
+      display: flex;
+      gap: 10px;
+      height: 245px;
     }
-    .header h3 {
-      font-size: 14px;
+    /* SIDEBAR BÊN TRÁI */
+    .sidebar {
+      width: 105px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+      padding-right: 8px;
+    }
+    .brand-title {
+      font-size: 11px;
       font-weight: 800;
-      letter-spacing: 1px;
-      background: linear-gradient(135deg, #38bdf8, #818cf8, #c084fc);
+      text-align: center;
+      margin-bottom: 6px;
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      text-transform: uppercase;
-      line-height: 1.3;
+      line-height: 1.2;
     }
-    .header .subtitle {
-      font-size: 9px;
-      color: #64748b;
-      letter-spacing: 1px;
-      margin-top: 3px;
-    }
-    .tabs {
-      display: flex;
-      background: rgba(15, 23, 42, 0.6);
-      padding: 3px;
-      border-radius: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      margin-bottom: 12px;
-      gap: 4px;
-    }
-    .tab-btn {
-      flex: 1;
-      padding: 8px 0;
-      font-size: 11px;
+    .nav-btn {
+      padding: 8px 6px;
+      font-size: 10.5px;
       font-weight: 600;
       border: none;
-      background: transparent;
+      background: rgba(30, 41, 59, 0.6);
       color: #94a3b8;
-      border-radius: 8px;
+      border-radius: 6px;
       cursor: pointer;
-      transition: all 0.25s ease;
+      text-align: center;
+      transition: all 0.2s ease;
     }
-    .tab-btn.active {
+    .nav-btn.active {
       background: linear-gradient(135deg, #0284c7, #2563eb);
-      color: #ffffff;
-      box-shadow: 0 2px 10px rgba(37, 99, 235, 0.35);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
     }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
+    /* NỘI DUNG BÊN PHẢI */
+    .content-area {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
     
-    .guide-card {
-      font-size: 11.5px;
+    .guide-box {
+      font-size: 10.5px;
       color: #cbd5e1;
       background: rgba(30, 41, 59, 0.5);
       border: 1px dashed rgba(56, 189, 248, 0.3);
-      padding: 10px;
-      border-radius: 10px;
-      margin-bottom: 12px;
-      line-height: 1.45;
+      padding: 8px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      line-height: 1.35;
       text-align: center;
       white-space: pre-line;
     }
-    .input-box {
+    .input-field {
       width: 100%;
-      padding: 10px;
-      border-radius: 10px;
+      padding: 8px;
+      border-radius: 8px;
       border: 1px solid rgba(56, 189, 248, 0.3);
       background: rgba(15, 23, 42, 0.8);
       color: #38bdf8;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: bold;
-      margin-bottom: 10px;
+      margin-bottom: 6px;
       text-align: center;
       outline: none;
-      display: none;
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
     }
-    .input-box:focus {
-      border-color: #38bdf8;
-      box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+    .btn-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+      margin-bottom: 6px;
     }
-    .btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .action-btn {
       width: 100%;
-      padding: 11px;
-      margin-bottom: 8px;
+      padding: 9px 4px;
+      margin-bottom: 5px;
       color: #fff;
       border: none;
-      border-radius: 10px;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.3px;
-      cursor: pointer;
-      transition: transform 0.1s ease, filter 0.2s ease;
-    }
-    .btn:active {
-      transform: scale(0.97);
-    }
-    .btn-green { 
-      background: linear-gradient(135deg, #10b981, #059669); 
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
-    }
-    .btn-orange { 
-      background: linear-gradient(135deg, #f97316, #ea580c); 
-      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25);
-    }
-    .btn-glow { 
-      background: linear-gradient(135deg, #a855f7, #7c3aed); 
-      box-shadow: 0 4px 15px rgba(168, 85, 247, 0.35);
-    }
-    .btn-red { 
-      background: rgba(239, 68, 68, 0.15); 
-      color: #f87171;
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      padding: 8px;
+      border-radius: 7px;
       font-size: 11px;
-      margin-top: 4px;
+      font-weight: 700;
+      cursor: pointer;
     }
-    .btn-red:active {
-      background: rgba(239, 68, 68, 0.25);
-    }
+    .btn-blue { background: linear-gradient(135deg, #0284c7, #2563eb); }
+    .btn-green { background: linear-gradient(135deg, #10b981, #059669); }
+    .btn-orange { background: linear-gradient(135deg, #f97316, #ea580c); }
+    .btn-purple { background: linear-gradient(135deg, #a855f7, #7c3aed); }
+    .btn-red { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); padding: 7px; font-size: 10px; }
+    
+    /* RADIO PLAYER */
+    audio { width: 100%; height: 35px; margin-top: 6px; outline: none; border-radius: 8px; }
     .status-bar {
-      font-size: 10.5px;
+      font-size: 9.5px;
       color: #64748b;
       text-align: center;
-      margin-top: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
-    .status-dot {
-      width: 6px;
-      height: 6px;
-      background: #10b981;
-      border-radius: 50%;
-      box-shadow: 0 0 6px #10b981;
+      margin-top: 8px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 6px;
     }
   </style>
 </head>
 <body>
 
-  <div class="header">
-    <h3>Mod CPK Beta</h3>
-    <div class="subtitle">by Minh Do x Gemini</div>
+  <div class="layout-container">
+    <!-- CỘT SIDEBAR -->
+    <div class="sidebar">
+      <div class="brand-title">MOD CPK<br>v4.9.7</div>
+      <button class="nav-btn active" onclick="switchNav('bodyTab', this)">Mod Body</button>
+      <button class="nav-btn" onclick="switchNav('glowTab', this)">Phát Sáng</button>
+      <button class="nav-btn" onclick="switchNav('customTab', this)">Tùy Chỉnh Xe</button>
+      <button class="nav-btn" onclick="switchNav('chillTab', this)">Chill (Radio)</button>
+    </div>
+
+    <!-- KHU VỰC NỘI DUNG -->
+    <div class="content-area">
+      
+      <!-- TAB 1: MOD BODY -->
+      <div id="bodyTab" class="tab-panel active">
+        <div class="guide-box" id="guideBody">Bấm chọn CẢN SỐ 2 trong game rồi bấm nút bên dưới.</div>
+        <input type="number" id="inputBody" class="input-field" placeholder="Nhập ID Body..." style="display:none;">
+        <button class="action-btn btn-green" id="btnBody" onclick="nextBodyStep()">Bước 1: Quét Cản 2 (I32 = 1)</button>
+        <button class="action-btn btn-red" onclick="resetBodySteps()">Làm lại từ đầu</button>
+      </div>
+
+      <!-- TAB 2: MOD PHÁT SÁNG -->
+      <div id="glowTab" class="tab-panel">
+        <div class="guide-box" id="guideGlow">Kéo màu chi tiết về TRẮNG (#FFFFFF) rồi bấm nút dưới.</div>
+        <input type="number" id="inputGlow" class="input-field" value="38" placeholder="Độ sáng (mặc định 38)" style="display:none;">
+        <button class="action-btn btn-green" id="btnGlow" onclick="nextGlowStep()">Bước 1: Quét Trắng (F32 = 1)</button>
+        <button class="action-btn btn-red" onclick="resetGlowSteps()">Làm lại từ đầu</button>
+      </div>
+
+      <!-- TAB 3: TÙY CHỈNH XE (MASS, GÓC LÁI, CAMBER) -->
+      <div id="customTab" class="tab-panel">
+        <div class="guide-box" id="guideCustom">Chọn thông số muốn độ bên dưới để bắt đầu:</div>
+        <input type="number" id="inputCustom" class="input-field" placeholder="..." style="display:none;">
+        
+        <div class="btn-grid" id="gridCustom">
+          <button class="action-btn btn-blue" onclick="startCustomMod('Mass', 'Độ Nặng (Mass)')">Độ Nặng (Mass)</button>
+          <button class="action-btn btn-blue" onclick="startCustomMod('Shift', 'Shift Time')">Shift Time</button>
+          <button class="action-btn btn-blue" onclick="startCustomMod('Steer', 'Góc Lái')">Góc Lái</button>
+          <button class="action-btn btn-blue" onclick="startCustomMod('Camber', 'Bánh Xéo')">Bánh Xéo</button>
+        </div>
+
+        <button class="action-btn btn-green" id="btnCustomAction" style="display:none;" onclick="processCustomMod()">Bắt Đầu Quét</button>
+        <button class="action-btn btn-red" id="btnCustomReset" style="display:none;" onclick="resetCustomMod()">Hủy / Chọn Lại</button>
+      </div>
+
+      <!-- TAB 4: CHILL (TRÌNH PHÁT NHẠC RADIO) -->
+      <div id="chillTab" class="tab-panel">
+        <div class="guide-box">📻 Nghe nhạc Lo-Fi / Vinahouse khi lái xe:</div>
+        <input type="text" id="musicUrl" class="input-field" placeholder="Dán link mp3..." value="https://stream.zeno.fm/f3wvbbqmdg8uv">
+        <button class="action-btn btn-purple" onclick="playRadio()">▶ Phát Nhạc</button>
+        <audio id="audioPlayer" controls></audio>
+      </div>
+
+    </div>
   </div>
 
-  <div class="tabs">
-    <button class="tab-btn active" id="tabBtnBody" onclick="switchTab('body')">Mod Body Xe</button>
-    <button class="tab-btn" id="tabBtnGlow" onclick="switchTab('glow')">Mod Phát Sáng</button>
-  </div>
-
-  <!-- TAB 1: MOD BODY XE -->
-  <div id="tabBody" class="tab-content active">
-    <div class="guide-card" id="guideBody">Bấm chọn CẢN SỐ 2 trong game rồi bấm nút bên dưới.</div>
-    <input type="number" id="inputBody" class="input-box" placeholder="Nhập ID Body muốn mod...">
-    <button class="btn btn-green" id="btnBody" onclick="nextBodyStep()">Bước 1: Quét Cản 2 (Search 1)</button>
-    <button class="btn btn-red" onclick="resetBodySteps()">Làm lại từ đầu</button>
-  </div>
-
-  <!-- TAB 2: MOD PHÁT SÁNG -->
-  <div id="tabGlow" class="tab-content">
-    <div class="guide-card" id="guideGlow">Kéo màu chi tiết về TRẮNG (#FFFFFF) rồi bấm nút dưới.</div>
-    <input type="number" id="inputGlow" class="input-box" value="8" placeholder="Độ sáng (mặc định 8)">
-    <button class="btn btn-green" id="btnGlow" onclick="nextGlowStep()">Bước 1: Quét Màu Trắng (F32 = 1)</button>
-    <button class="btn btn-red" onclick="resetGlowSteps()">Làm lại từ đầu</button>
-  </div>
-
-  <div class="status-bar">
-    <div class="status-dot"></div>
-    <span id="statusLog">Sẵn sàng hoạt động</span>
-  </div>
+  <div class="status-bar" id="statusLog">H5GG Sẵn sàng hoạt động</div>
 
   <script>
     const ANON_MIN = '0x100000000';
     const ANON_MAX = '0x200000000';
 
-    function setStatus(msg) {
-      document.getElementById('statusLog').innerText = msg;
-    }
+    function setStatus(msg) { document.getElementById('statusLog').innerText = msg; }
+    function hideKeyboard() { if (document.activeElement) document.activeElement.blur(); }
 
-    function switchTab(tab) {
-      document.getElementById('tabBody').classList.remove('active');
-      document.getElementById('tabGlow').classList.remove('active');
-      document.getElementById('tabBtnBody').classList.remove('active');
-      document.getElementById('tabBtnGlow').classList.remove('active');
-
-      if (tab === 'body') {
-        document.getElementById('tabBody').classList.add('active');
-        document.getElementById('tabBtnBody').classList.add('active');
-      } else {
-        document.getElementById('tabGlow').classList.add('active');
-        document.getElementById('tabBtnGlow').classList.add('active');
-      }
+    function switchNav(tabId, btn) {
+      hideKeyboard();
+      document.querySelectorAll('.tab-panel').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      btn.classList.add('active');
       setStatus("Đã chuyển tab");
     }
 
-    // ==========================================
-    // 1. LOGIC MOD BODY XE (I32)
-    // ==========================================
+    // ================= MOD BODY =================
     let stepBody = 1;
     function nextBodyStep() {
-      if (typeof h5gg === 'undefined') { alert("Lỗi: H5GG chưa được load!"); return; }
+      if (typeof h5gg === 'undefined') { alert("H5GG chưa load!"); return; }
+      hideKeyboard();
       const btn = document.getElementById('btnBody');
       const input = document.getElementById('inputBody');
       const guide = document.getElementById('guideBody');
@@ -241,140 +223,206 @@
         let count = h5gg.getResultsCount();
         if (count === 0) { alert("Không tìm thấy!"); return; }
         stepBody = 2;
-        guide.innerText = `Tìm thấy ${count} kết quả.\n👉 Chạm vào game CHỌN CẢN SỐ 3, rồi bấm nút dưới.`;
+        guide.innerText = `Tìm thấy ${count} kết quả.\n👉 Chọn CẢN SỐ 3 rồi bấm nút dưới.`;
         btn.innerText = "Bước 2: Lọc Cản 3 (Refine 2)";
-        setStatus(`Còn ${count} kết quả`);
-      } else if (stepBody === 2) {
-        setStatus("Đang lọc cản 3...");
-        h5gg.searchNumber('2', 'I32', '0x00000000', '0x200000000');
+      } else if (stepBody >= 2 && stepBody <= 5) {
+        h5gg.searchNumber(stepBody.toString(), 'I32', '0x00000000', '0x200000000');
         let count = h5gg.getResultsCount();
         if (count === 0) { alert("Lọc thất bại!"); resetBodySteps(); return; }
-        stepBody = 3;
-        guide.innerText = `Còn ${count} kết quả.\n👉 Chạm vào game CHỌN CẢN SỐ 4, rồi bấm nút dưới.`;
-        btn.innerText = "Bước 3: Lọc Cản 4 (Refine 3)";
-        setStatus(`Còn ${count} kết quả`);
-      } else if (stepBody === 3) {
-        setStatus("Đang lọc cản 4...");
-        h5gg.searchNumber('3', 'I32', '0x00000000', '0x200000000');
-        let count = h5gg.getResultsCount();
-        if (count === 0) { alert("Lọc thất bại!"); resetBodySteps(); return; }
-        stepBody = 4;
-        guide.innerText = `Còn ${count} kết quả.\n👉 Chạm vào game CHỌN CẢN SỐ 5, rồi bấm nút dưới.`;
-        btn.innerText = "Bước 4: Lọc Cản 5 (Refine 4)";
-        setStatus(`Còn ${count} kết quả`);
-      } else if (stepBody === 4) {
-        setStatus("Đang lọc cản 5...");
-        h5gg.searchNumber('4', 'I32', '0x00000000', '0x200000000');
-        let count = h5gg.getResultsCount();
-        if (count === 0) { alert("Lọc thất bại!"); resetBodySteps(); return; }
-        stepBody = 5;
-        guide.innerText = `Còn ${count} kết quả.\n👉 Chạm vào game CHỌN CẢN SỐ 6, rồi bấm nút dưới.`;
-        btn.innerText = "Bước 5: Lọc Cản 6 (Refine 5)";
-        setStatus(`Còn ${count} kết quả`);
-      } else if (stepBody === 5) {
-        setStatus("Đang lọc cản 6...");
-        h5gg.searchNumber('5', 'I32', '0x00000000', '0x200000000');
-        let count = h5gg.getResultsCount();
-        if (count === 0) { alert("Lọc thất bại!"); resetBodySteps(); return; }
-        stepBody = 6;
-        guide.innerText = `✅ ĐÃ TÌM ĐƯỢC ${count} ĐỊA CHỈ!\n\n👉 Thoát ra ngoài, CHỌN XE CÓ HỐC GIÓ bạn muốn mod.\n👉 Chọn xong bấm nút xác nhận bên dưới.`;
-        btn.innerText = "Đã Chọn Xe (Tiếp tục)";
-        btn.className = "btn btn-orange";
-        setStatus(`Khóa mục tiêu: ${count} địa chỉ`);
+        stepBody++;
+        guide.innerText = `Còn ${count} kết quả.\n👉 Chọn CẢN SỐ ${stepBody} rồi bấm nút dưới.`;
+        btn.innerText = `Bước ${stepBody - 1}: Lọc Cản ${stepBody}`;
       } else if (stepBody === 6) {
         stepBody = 7;
-        guide.innerText = "👉 Nhập số ID Body muốn mod vào ô bên dưới, sau đó bấm Áp Dụng.";
+        guide.innerText = "👉 Ra gara chọn xe muốn độ Body.\n👉 Nhập ID Body vào ô dưới rồi bấm Áp Dụng:";
         input.style.display = "block";
-        btn.innerText = "Áp Dụng Body Mod";
-        btn.className = "btn btn-green";
+        btn.innerText = "Áp Dụng ID Body";
+        btn.className = "action-btn btn-orange";
       } else if (stepBody === 7) {
         let val = input.value.trim();
-        if (!val || isNaN(val)) { alert("Vui lòng nhập số ID hợp lệ!"); return; }
+        if (!val || isNaN(val)) { alert("Vui lòng nhập ID hợp lệ!"); return; }
         h5gg.editAll(val, 'I32');
-        alert(`ĐÃ THAY ĐỔI THÀNH CÔNG SANG BODY ID: ${val}`);
+        alert("ĐÃ MOD BODY THÀNH CÔNG!");
         resetBodySteps();
       }
     }
-
     function resetBodySteps() {
+      hideKeyboard();
       stepBody = 1;
       document.getElementById('inputBody').style.display = "none";
       document.getElementById('inputBody').value = "";
-      document.getElementById('btnBody').className = "btn btn-green";
-      document.getElementById('btnBody').innerText = "Bước 1: Quét Cản 2 (Search 1)";
+      document.getElementById('btnBody').innerText = "Bước 1: Quét Cản 2 (I32 = 1)";
+      document.getElementById('btnBody').className = "action-btn btn-green";
       document.getElementById('guideBody').innerText = "Bấm chọn CẢN SỐ 2 trong game rồi bấm nút bên dưới.";
-      setStatus("Sẵn sàng hoạt động");
+      setStatus("Sẵn sàng");
     }
 
-    // ==========================================
-    // 2. LOGIC MOD PHÁT SÁNG (ANONYMOUS & F32)
-    // ==========================================
+    // ================= MOD PHÁT SÁNG =================
     let stepGlow = 1;
-    const sequenceGlow = [
-      { val: '1', name: 'TRẮNG (#FFFFFF)' }, { val: '0', name: 'ĐEN (#000000)' },
-      { val: '1', name: 'TRẮNG (#FFFFFF)' }, { val: '0', name: 'ĐEN (#000000)' },
-      { val: '1', name: 'TRẮNG (#FFFFFF)' }, { val: '0', name: 'ĐEN (#000000)' },
-      { val: '1', name: 'TRẮNG (#FFFFFF)' }
-    ];
-
+    const seqGlow = ['1', '0', '1', '0', '1', '0', '1'];
     function nextGlowStep() {
-      if (typeof h5gg === 'undefined') { alert("Lỗi: H5GG chưa được load!"); return; }
+      if (typeof h5gg === 'undefined') { alert("H5GG chưa load!"); return; }
+      hideKeyboard();
       const btn = document.getElementById('btnGlow');
       const input = document.getElementById('inputGlow');
       const guide = document.getElementById('guideGlow');
 
       if (stepGlow === 1) {
-        setStatus("Đang quét vùng Anonymous...");
+        setStatus("Đang quét an toàn...");
         setTimeout(() => {
           h5gg.clearResults();
           h5gg.searchNumber('1', 'F32', ANON_MIN, ANON_MAX);
           let count = h5gg.getResultsCount();
-          if (count === 0) { alert("Không tìm thấy giá trị 1! Hãy chắc chắn kéo màu về TRẮNG (#FFFFFF)."); return; }
+          if (count === 0) { alert("Không tìm thấy giá trị 1! Nhớ kéo màu về Trắng."); return; }
           stepGlow = 2;
-          guide.innerText = `Còn ${count} kết quả.\n👉 Bây giờ hãy kéo màu về ĐEN (#000000), rồi bấm nút dưới.`;
-          btn.innerText = "Bước 2: Lọc Màu Đen (F32 = 0)";
-          setStatus(`Còn ${count} kết quả`);
-        }, 100);
+          guide.innerText = `Còn ${count} kết quả.\n👉 Kéo màu về ĐEN (#000000) rồi bấm nút dưới.`;
+          btn.innerText = "Bước 2: Lọc Đen (F32 = 0)";
+        }, 80);
       } else if (stepGlow >= 2 && stepGlow <= 7) {
-        let currentTarget = sequenceGlow[stepGlow - 1].val;
-        setStatus(`Đang lọc Float ${currentTarget}...`);
+        let target = seqGlow[stepGlow - 1];
         setTimeout(() => {
-          h5gg.searchNumber(currentTarget, 'F32', ANON_MIN, ANON_MAX);
+          h5gg.searchNumber(target, 'F32', ANON_MIN, ANON_MAX);
           let count = h5gg.getResultsCount();
-          if (count === 0) { alert(`Lọc thất bại!`); resetGlowSteps(); return; }
+          if (count === 0) { alert("Lọc thất bại!"); resetGlowSteps(); return; }
           if (stepGlow === 7) {
             stepGlow = 8;
-            guide.innerText = `✅ ĐÃ LỌC XONG (Còn ${count} địa chỉ)!\n\nNhập độ sáng (mặc định: 8) rồi bấm Kích Hoạt.`;
+            guide.innerText = `✅ ĐÃ KHÓA SẠCH ${count} ĐỊA CHỈ!\nNhập độ sáng rồi bấm Kích Hoạt (Khuyên dùng 38).`;
             input.style.display = "block";
-            btn.innerText = "Kích Hoạt Phát Sáng (Set = 8)";
-            btn.className = "btn btn-glow";
-            setStatus(`Khóa ${count} địa chỉ`);
+            btn.innerText = "Kích Hoạt Phát Sáng";
+            btn.className = "action-btn btn-purple";
           } else {
             stepGlow++;
-            const nextTarget = sequenceGlow[stepGlow - 1];
-            guide.innerText = `Còn ${count} kết quả.\n👉 Kéo màu về ${nextTarget.name}, rồi bấm nút dưới.`;
-            btn.innerText = `Bước ${stepGlow}: Lọc Màu ${nextTarget.val === '1' ? 'Trắng' : 'Đen'} (F32 = ${nextTarget.val})`;
-            setStatus(`Còn ${count} kết quả`);
+            let nextVal = seqGlow[stepGlow - 1];
+            guide.innerText = `Còn ${count} kết quả.\n👉 Kéo màu về ${nextVal === '1' ? 'TRẮNG' : 'ĐEN'} rồi bấm nút.`;
+            btn.innerText = `Bước ${stepGlow}: Lọc ${nextVal === '1' ? 'Trắng' : 'Đen'} (F32 = ${nextVal})`;
           }
-        }, 100);
+        }, 80);
       } else if (stepGlow === 8) {
-        let val = input.value.trim();
-        if (!val || isNaN(val)) { alert("Vui lòng nhập số hợp lệ!"); return; }
+        let val = input.value.trim() || "38";
         h5gg.editAll(val, 'F32');
-        alert(`THÀNH CÔNG!\nĐã chỉnh độ sáng thành ${val}.`);
+        alert("ĐÃ KÍCH HOẠT PHÁT SÁNG!\nChạm nhẹ vào bảng màu để cập nhật.");
         resetGlowSteps();
       }
     }
-
     function resetGlowSteps() {
+      hideKeyboard();
       stepGlow = 1;
       document.getElementById('inputGlow').style.display = "none";
-      document.getElementById('inputGlow').value = "8";
-      const btn = document.getElementById('btnGlow');
-      btn.className = "btn btn-green";
-      btn.innerText = "Bước 1: Quét Màu Trắng (F32 = 1)";
+      document.getElementById('inputGlow').value = "38";
+      document.getElementById('btnGlow').innerText = "Bước 1: Quét Trắng (F32 = 1)";
+      document.getElementById('btnGlow').className = "action-btn btn-green";
       document.getElementById('guideGlow').innerText = "Kéo màu chi tiết về TRẮNG (#FFFFFF) rồi bấm nút dưới.";
-      setStatus("Sẵn sàng hoạt động");
+      setStatus("Sẵn sàng");
+    }
+
+    // ================= TÙY CHỈNH XE (MASS, GÓC LÁI...) =================
+    let currentCustom = '';
+    let customStep = 0;
+
+    function startCustomMod(type, name) {
+      currentCustom = type;
+      customStep = 1;
+      document.getElementById('gridCustom').style.display = 'none';
+      document.getElementById('inputCustom').style.display = 'block';
+      document.getElementById('btnCustomAction').style.display = 'block';
+      document.getElementById('btnCustomReset').style.display = 'block';
+      
+      const guide = document.getElementById('guideCustom');
+      const input = document.getElementById('inputCustom');
+      const btn = document.getElementById('btnCustomAction');
+
+      if (type === 'Mass') {
+        guide.innerText = "👉 Vào khoang động cơ, xem thông số [Mass] của xe.\n👉 Nhập đúng số Mass đó vào ô dưới:";
+        input.placeholder = "Nhập Mass hiện tại (VD: 1500)...";
+      } else if (type === 'Shift') {
+        guide.innerText = "👉 Xem thông số [Shift Time] của xe.\n👉 Nhập đúng số đó vào ô dưới:";
+        input.placeholder = "Nhập Shift Time (VD: 0.25)...";
+      } else if (type === 'Steer') {
+        guide.innerText = "👉 Xem góc đánh lái tối đa của xe (Max Steering).\n👉 Nhập số đó vào ô dưới:";
+        input.placeholder = "Nhập Góc Lái (Thường từ 35 - 60)...";
+      } else if (type === 'Camber') {
+        guide.innerText = "👉 Xem độ nghiêng bánh xe (Camber).\n👉 Nhập số đó vào ô dưới:";
+        input.placeholder = "Nhập Camber (VD: -0.05 hoặc 0)...";
+      }
+      btn.innerText = `Bước 1: Quét thông số ${name}`;
+      btn.className = "action-btn btn-green";
+    }
+
+    function processCustomMod() {
+      if (typeof h5gg === 'undefined') { alert("H5GG chưa load!"); return; }
+      hideKeyboard();
+      let val = document.getElementById('inputCustom').value.trim();
+      const guide = document.getElementById('guideCustom');
+      const btn = document.getElementById('btnCustomAction');
+
+      if (customStep === 1) {
+        if (!val) { alert("Vui lòng nhập giá trị hiện tại!"); return; }
+        setStatus(`Đang quét ${currentCustom}: ${val}...`);
+        h5gg.clearResults();
+        h5gg.searchNumber(val, 'F32', '0x100000000', '0x200000000');
+        let count = h5gg.getResultsCount();
+        
+        if (count === 0) { alert("Không tìm thấy giá trị!"); return; }
+
+        if (count > 30) {
+           customStep = 1.5;
+           guide.innerText = `Tìm thấy ${count} kết quả. Quá nhiều rác!\n👉 Hãy thay đổi ${currentCustom} trong game để nó mang một số mới.\n👉 Nhập số MỚI vào đây để lọc tiếp.`;
+           document.getElementById('inputCustom').value = "";
+           document.getElementById('inputCustom').placeholder = "Nhập số MỚI sau khi thay đổi...";
+           btn.innerText = "Bước 2: Lọc Giá Trị Mới";
+           btn.className = "action-btn btn-orange";
+        } else {
+           customStep = 2;
+           guide.innerText = `✅ Đã khóa ${count} địa chỉ an toàn!\n👉 Nhập con số BẠN MUỐN ĐỔI THÀNH vào ô dưới:`;
+           document.getElementById('inputCustom').value = "";
+           document.getElementById('inputCustom').placeholder = "Nhập giá trị mong muốn (VD: Mass 500)...";
+           btn.innerText = "Bước 3: Ghi Đè (Áp Dụng)";
+           btn.className = "action-btn btn-purple";
+        }
+      } else if (customStep === 1.5) {
+        if (!val) { alert("Vui lòng nhập giá trị mới!"); return; }
+        h5gg.searchNumber(val, 'F32', '0x100000000', '0x200000000');
+        let count = h5gg.getResultsCount();
+        if (count === 0) { alert("Lọc thất bại! Hãy làm lại."); resetCustomMod(); return; }
+        if (count > 30) { alert(`Vẫn còn ${count} kết quả. Hãy tiếp tục thay đổi thông số và bấm lọc lại!`); return; }
+
+        customStep = 2;
+        guide.innerText = `✅ Đã khóa ${count} địa chỉ an toàn!\n👉 Nhập con số BẠN MUỐN ĐỔI THÀNH vào ô dưới:`;
+        document.getElementById('inputCustom').value = "";
+        document.getElementById('inputCustom').placeholder = "Nhập giá trị mong muốn...";
+        btn.innerText = "Bước 3: Ghi Đè (Áp Dụng)";
+        btn.className = "action-btn btn-purple";
+      } else if (customStep === 2) {
+        if (!val) { alert("Vui lòng nhập giá trị muốn đổi!"); return; }
+        h5gg.editAll(val, 'F32');
+        alert(`🎉 THÀNH CÔNG!\nĐã mod ${currentCustom} thành: ${val}.\n👉 Vào trận hoặc reset xe để thấy kết quả!`);
+        resetCustomMod();
+      }
+    }
+
+    function resetCustomMod() {
+      hideKeyboard();
+      currentCustom = '';
+      customStep = 0;
+      document.getElementById('gridCustom').style.display = 'grid';
+      document.getElementById('inputCustom').style.display = 'none';
+      document.getElementById('inputCustom').value = '';
+      document.getElementById('btnCustomAction').style.display = 'none';
+      document.getElementById('btnCustomReset').style.display = 'none';
+      document.getElementById('guideCustom').innerText = "Chọn thông số muốn độ bên dưới để bắt đầu:";
+      setStatus("Sẵn sàng");
+    }
+
+    // ================= RADIO CHILL =================
+    function playRadio() {
+      hideKeyboard();
+      const url = document.getElementById('musicUrl').value.trim();
+      const player = document.getElementById('audioPlayer');
+      if (url) {
+        player.src = url;
+        player.play();
+        setStatus("Đang phát nhạc Radio...");
+      }
     }
   </script>
 </body>
