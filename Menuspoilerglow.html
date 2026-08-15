@@ -106,7 +106,6 @@
       font-size: 11px;
       font-weight: 700;
       cursor: pointer;
-      transition: opacity 0.2s;
     }
     .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-green { background: linear-gradient(135deg, #10b981, #059669); }
@@ -135,11 +134,11 @@
     </div>
 
     <div class="content-area">
-      <!-- TAB 1: GỠ CẢN TRƯỚC (LẶP 0 <-> 1 MƯỢT KHÔNG CRASH) -->
+      <!-- TAB 1: GỠ CẢN TRƯỚC (QUÉT ANONYMOUS CHUẨN) -->
       <div id="bumperTab" class="tab-panel active">
-        <div class="guide-box" id="guideBumper">👉 Chọn xe mặc định $\rightarrow$ Vào cản trước $\rightarrow$ Bấm CẢN 1 rồi bấm nút bên dưới:</div>
-        <button class="action-btn btn-green" id="btnBumperAction" onclick="handleBumperToggle()">Bước 1: Quét Cản 1 (D-Word: 0)</button>
-        <button class="action-btn btn-red" onclick="resetBumperSteps()">Làm lại từ đầu</button>
+        <div class="guide-box" id="guideBumper">👉 Chọn CẢN SỐ 1 trong game rồi bấm nút bên dưới:</div>
+        <button class="action-btn btn-green" id="btnBumperAction" onclick="handleBumperScan()">Bước 1: Quét Cản 1 (D-Word: 0)</button>
+        <button class="action-btn btn-red" onclick="resetBumperScan()">Làm lại từ đầu</button>
       </div>
 
       <!-- TAB 2: MOD BODY -->
@@ -162,8 +161,9 @@
   <div class="status-bar" id="statusLog">Sẵn sàng hoạt động</div>
 
   <script>
+    // Ép đúng phạm vi bộ nhớ Anonymous của Unity trên iOS
     const ANON_MIN = '0x100000000';
-    const ANON_MAX = '0x200000000';
+    const ANON_MAX = '0x160000000';
 
     function setStatus(msg) { document.getElementById('statusLog').innerText = msg; }
     function hideKeyboard() { if (document.activeElement) document.activeElement.blur(); }
@@ -177,75 +177,68 @@
       setStatus("Đã chuyển tab");
     }
 
-    // ================= LOGIC GỠ CẢN: LẶP 0 <-> 1 ĐẾN KHI CÒN 1 ADDRESS =================
-    let isBumperFirstScan = true;
-    let expectedValue = '0'; // '0' cho Cản 1, '1' cho Cản 2
+    // ================= LOGIC GỠ CẢN TRƯỚC =================
+    let isFirst = true;
+    let currentTarget = '0';
 
-    function handleBumperToggle() {
+    function handleBumperScan() {
       if (typeof h5gg === 'undefined') { alert("H5GG chưa load!"); return; }
       hideKeyboard();
       
       const btn = document.getElementById('btnBumperAction');
       const guide = document.getElementById('guideBumper');
-      
       btn.disabled = true;
 
-      // Xử lý quét lần đầu: Search 0
-      if (isBumperFirstScan) {
-        setStatus("Đang quét Cản 1 (D-Word: 0)...");
-        
+      if (isFirst) {
+        setStatus("Đang quét Cản 1 (0)...");
         setTimeout(() => {
           h5gg.clearResults();
+          // Quét 0 trong phạm vi Anonymous thu hẹp
           h5gg.searchNumber('0', 'I32', ANON_MIN, ANON_MAX);
           let count = h5gg.getResultsCount();
           
           if (count === 0) {
-            alert("Không tìm thấy giá trị 0! Hãy chọn Cản 1 rồi thử lại.");
+            alert("Không tìm thấy giá trị! Hãy chắc chắn bạn đã chọn Cản 1.");
             btn.disabled = false;
             return;
           }
 
-          isBumperFirstScan = false;
-          expectedValue = '1'; // Bước tiếp theo cần chọn Cản 2 (Refine 1)
-
-          guide.innerText = `Tìm thấy ${count} kết quả.\n👉 Trong game bấm chọn CẢN SỐ 2 rồi bấm nút dưới:`;
+          isFirst = false;
+          currentTarget = '1';
+          guide.innerText = `Tìm thấy ${count} kết quả.\n👉 Chọn CẢN SỐ 2 rồi bấm nút dưới:`;
           btn.innerText = "Lọc Cản 2 (D-Word: 1)";
           btn.className = "action-btn btn-orange";
           btn.disabled = false;
           setStatus(`Còn ${count} kết quả`);
         }, 100);
       } 
-      // Xử lý các lần lọc lặp lại xen kẽ giữa 1 và 0
       else {
-        setStatus(`Đang lọc Cản (D-Word: ${expectedValue})...`);
-        
+        setStatus(`Đang lọc Cản (${currentTarget})...`);
         setTimeout(() => {
-          h5gg.searchNumber(expectedValue, 'I32', ANON_MIN, ANON_MAX);
+          h5gg.searchNumber(currentTarget, 'I32', ANON_MIN, ANON_MAX);
           let count = h5gg.getResultsCount();
 
           if (count === 0) {
-            alert("Lọc thất bại! Hãy kiểm tra lại đã chọn đúng cản trong game chưa.");
-            resetBumperSteps();
+            alert("Lọc thất bại! Hãy làm lại từ đầu.");
+            resetBumperScan();
             return;
           }
 
-          // KHI ĐÃ LỌC CÒN ĐÚNG 1 ADDRESS DUY NHẤT
           if (count === 1) {
             h5gg.editAll('-1', 'I32');
-            alert("✅ GỠ CẢN THÀNH CÔNG!\n\nĐã khóa đúng 1 Address và đổi thành -1.\nCản trước đã được gỡ bỏ hoàn toàn!");
+            alert("✅ GỠ CẢN TRƯỚC THÀNH CÔNG!\nĐã khóa đúng 1 Address và đổi thành -1.");
             setStatus("Đã gỡ cản (-1)");
-            resetBumperSteps();
+            resetBumperScan();
             return;
           }
 
-          // Đảo chiều trạng thái cản cho lần bấm tiếp theo
-          if (expectedValue === '1') {
-            expectedValue = '0';
-            guide.innerText = `Còn ${count} kết quả.\n👉 Trong game bấm chọn lại CẢN SỐ 1 rồi bấm nút dưới:`;
+          if (currentTarget === '1') {
+            currentTarget = '0';
+            guide.innerText = `Còn ${count} kết quả.\n👉 Chọn lại CẢN SỐ 1 rồi bấm nút dưới:`;
             btn.innerText = "Lọc Cản 1 (D-Word: 0)";
           } else {
-            expectedValue = '1';
-            guide.innerText = `Còn ${count} kết quả.\n👉 Trong game bấm chọn lại CẢN SỐ 2 rồi bấm nút dưới:`;
+            currentTarget = '1';
+            guide.innerText = `Còn ${count} kết quả.\n👉 Chọn lại CẢN SỐ 2 rồi bấm nút dưới:`;
             btn.innerText = "Lọc Cản 2 (D-Word: 1)";
           }
 
@@ -256,15 +249,15 @@
       }
     }
 
-    function resetBumperSteps() {
+    function resetBumperScan() {
       hideKeyboard();
-      isBumperFirstScan = true;
-      expectedValue = '0';
+      isFirst = true;
+      currentTarget = '0';
       const btn = document.getElementById('btnBumperAction');
       btn.disabled = false;
       btn.innerText = "Bước 1: Quét Cản 1 (D-Word: 0)";
       btn.className = "action-btn btn-green";
-      document.getElementById('guideBumper').innerText = "👉 Chọn xe mặc định $\\rightarrow$ Vào cản trước $\\rightarrow$ Bấm CẢN 1 rồi bấm nút bên dưới:";
+      document.getElementById('guideBumper').innerText = "👉 Chọn CẢN SỐ 1 trong game rồi bấm nút bên dưới:";
       setStatus("Sẵn sàng");
     }
 
