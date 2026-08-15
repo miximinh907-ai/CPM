@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>CPM Pro Menu by Minh Do x Gemini</title>
+  <title>Mod CPK Beta by Minh Do x Gemini</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     body {
@@ -134,7 +134,7 @@
   <div class="layout-container">
     <div class="sidebar">
       <div class="brand-title">MOD CPK<br>v4.9.7</div>
-      <button class="nav-btn active" onclick="switchNav('massTab', this)">Mod Mass (Nặng)</button>
+      <button class="nav-btn active" onclick="switchNav('massTab', this)">Mod Mass</button>
       <button class="nav-btn" onclick="switchNav('cdTab', this)">Mod CD (Gió)</button>
       <button class="nav-btn" onclick="switchNav('brakeTab', this)">Buff Phanh</button>
       <button class="nav-btn" onclick="switchNav('bodyTab', this)">Mod Body</button>
@@ -142,30 +142,28 @@
     </div>
 
     <div class="content-area">
-      <!-- TAB 1: MOD MASS (TRỌNG LƯỢNG) -->
+      <!-- TAB 1: MOD MASS -->
       <div id="massTab" class="tab-panel active">
         <div class="guide-box" id="guideMass">
-          👉 Ghi nhớ số Mass của xe và vào map chơi.
-          👉 Nhập số Mass hiện tại vào ô bên dưới:
+          👉 Nhập đúng số Mass của xe (VD: 1990) rồi bấm Tìm:
         </div>
-        <input type="number" id="inputMass" class="input-field" placeholder="Nhập Mass hiện tại (VD: 1500)...">
+        <input type="number" id="inputMass" class="input-field" placeholder="Nhập Mass hiện tại (VD: 1990)...">
         <div class="warning-text">⚠️ Không nên để dưới 200</div>
-        <button class="action-btn btn-green" id="btnMassAction" onclick="processMassMod()">Bước 1: Quét Nhóm Mass & 1</button>
-        <button class="action-btn btn-red" onclick="resetMassMod()">Làm lại từ đầu</button>
+        <button class="action-btn btn-green" id="btnMassAction" onclick="processMassMod()">Bước 1: Tìm Mass</button>
+        <button class="action-btn btn-red" onclick="resetMassMod()">Làm lại</button>
       </div>
 
-      <!-- TAB 2: MOD CD (CẢN GIÓ) -->
+      <!-- TAB 2: MOD CD -->
       <div id="cdTab" class="tab-panel">
         <div class="guide-box" id="guideCd">
-          👉 Ghi nhớ số CD xe và vào map chơi.
-          👉 Nhập số CD vào ô bên dưới:
+          👉 Nhập số CD của xe (Dùng dấu chấm, VD: 0.32):
         </div>
-        <input type="number" id="inputCd" step="any" class="input-field" placeholder="Nhập số CD (VD: 0.30, 0.41)...">
-        <button class="action-btn btn-green" id="btnCdAction" onclick="processCdMod()">Bước 1: Quét Nhóm CD & 1</button>
-        <button class="action-btn btn-red" onclick="resetCdMod()">Làm lại từ đầu</button>
+        <input type="number" id="inputCd" step="any" class="input-field" placeholder="Nhập CD (VD: 0.32)...">
+        <button class="action-btn btn-green" id="btnCdAction" onclick="processCdMod()">Bước 1: Tìm CD</button>
+        <button class="action-btn btn-red" onclick="resetCdMod()">Làm lại</button>
       </div>
 
-      <!-- TAB 3: BUFF PHANH (BRAKE SPEED) -->
+      <!-- TAB 3: BUFF PHANH -->
       <div id="brakeTab" class="tab-panel">
         <div class="guide-box" id="guideBrake">
           👉 Mua động cơ và các mục Other (KHÔNG mua Brake).
@@ -212,9 +210,8 @@
       setStatus("Đã chuyển tab");
     }
 
-    // ================= LOGIC MOD MASS =================
+    // ================= LOGIC MOD MASS (QUÉT ĐƠN THUẦN) =================
     let stepMass = 1;
-    let savedMassVal = '';
 
     function processMassMod() {
       if (typeof h5gg === 'undefined') { alert("H5GG chưa load!"); return; }
@@ -226,40 +223,28 @@
       if (stepMass === 1) {
         let val = input.value.trim();
         if (!val || isNaN(val)) {
-          alert("Vui lòng nhập số Mass hiện tại của xe!");
+          alert("Vui lòng nhập số Mass của xe!");
           return;
         }
-        savedMassVal = val;
-        setStatus(`Đang quét nhóm ${val};1 (F32)...`);
 
+        setStatus(`Đang quét Mass ${val}...`);
         h5gg.clearResults();
-        h5gg.searchNumber(`${savedMassVal};1`, 'F32', ANON_MIN, ANON_MAX);
+        h5gg.searchNumber(val, 'F32', ANON_MIN, ANON_MAX);
 
         let count = h5gg.getResultsCount();
         if (count === 0) {
-          alert(`Không tìm thấy nhóm ${savedMassVal};1! Hãy chắc chắn bạn đã vào map chơi.`);
-          setStatus("Không tìm thấy giá trị");
-          return;
-        }
-
-        // Bước 2: Refine lọc riêng số Mass
-        setStatus(`Đang lọc riêng ${savedMassVal}...`);
-        h5gg.searchNumber(savedMassVal, 'F32', ANON_MIN, ANON_MAX);
-        let refineCount = h5gg.getResultsCount();
-
-        if (refineCount === 0) {
-          alert("Lọc thất bại! Vui lòng thử lại.");
-          resetMassMod();
+          alert(`Không tìm thấy Mass ${val}!`);
+          setStatus("Không tìm thấy");
           return;
         }
 
         stepMass = 2;
-        guide.innerText = `✅ Đã khóa ${refineCount} địa chỉ Mass!\n👉 Nhập số Mass bạn muốn đổi vào ô bên dưới:`;
+        guide.innerText = `✅ Đã tìm thấy ${count} địa chỉ!\n👉 Nhập số Mass muốn đổi thành vào ô dưới rồi bấm Áp Dụng:`;
         input.value = '';
-        input.placeholder = "Nhập số Mass mong muốn (VD: 500, 800)...";
+        input.placeholder = "Nhập Mass mong muốn (VD: 500)...";
         btn.innerText = "Bước 2: Áp Dụng Mass Mới";
         btn.className = "action-btn btn-purple";
-        setStatus(`Đã khóa: ${refineCount} địa chỉ Mass`);
+        setStatus(`Khóa ${count} địa chỉ`);
       } 
       else if (stepMass === 2) {
         let newMass = input.value.trim();
@@ -269,8 +254,7 @@
         }
 
         h5gg.editAll(newMass, 'F32');
-        alert(`✅ ĐỔI MASS THÀNH CÔNG!\n\nĐã cập nhật trọng lượng xe thành: ${newMass}`);
-        setStatus(`Mass đã đổi thành: ${newMass}`);
+        alert(`✅ ĐÃ ĐỔI MASS THÀNH CÔNG!\nĐã chỉnh Mass thành: ${newMass}`);
         resetMassMod();
       }
     }
@@ -278,18 +262,16 @@
     function resetMassMod() {
       hideKeyboard();
       stepMass = 1;
-      savedMassVal = '';
       document.getElementById('inputMass').value = '';
-      document.getElementById('inputMass').placeholder = "Nhập Mass hiện tại (VD: 1500)...";
-      document.getElementById('btnMassAction').innerText = "Bước 1: Quét Nhóm Mass & 1";
+      document.getElementById('inputMass').placeholder = "Nhập Mass hiện tại (VD: 1990)...";
+      document.getElementById('btnMassAction').innerText = "Bước 1: Tìm Mass";
       document.getElementById('btnMassAction').className = "action-btn btn-green";
-      document.getElementById('guideMass').innerText = "👉 Ghi nhớ số Mass của xe và vào map chơi.\n👉 Nhập số Mass hiện tại vào ô bên dưới:";
+      document.getElementById('guideMass').innerText = "👉 Nhập đúng số Mass của xe (VD: 1990) rồi bấm Tìm:";
       setStatus("Sẵn sàng");
     }
 
-    // ================= LOGIC MOD CD =================
+    // ================= LOGIC MOD CD (QUÉT ĐƠN THUẦN) =================
     let stepCd = 1;
-    let savedCdVal = '';
 
     function processCdMod() {
       if (typeof h5gg === 'undefined') { alert("H5GG chưa load!"); return; }
@@ -301,43 +283,32 @@
       if (stepCd === 1) {
         let val = input.value.trim();
         if (!val || isNaN(val)) {
-          alert("Vui lòng nhập số CD của xe (VD: 0.30 hoặc 0.41)!");
+          alert("Vui lòng nhập số CD của xe (Dùng dấu chấm, VD: 0.32)!");
           return;
         }
-        savedCdVal = val;
-        setStatus(`Đang quét nhóm ${val};1 (F32)...`);
-        
+
+        setStatus(`Đang quét CD ${val}...`);
         h5gg.clearResults();
-        h5gg.searchNumber(`${savedCdVal};1`, 'F32', ANON_MIN, ANON_MAX);
-        
+        h5gg.searchNumber(val, 'F32', ANON_MIN, ANON_MAX);
+
         let count = h5gg.getResultsCount();
         if (count === 0) {
-          alert(`Không tìm thấy nhóm ${savedCdVal};1! Hãy chắc chắn bạn đã vào map chơi.`);
-          setStatus("Không tìm thấy giá trị");
+          alert(`Không tìm thấy giá trị CD ${val}!`);
+          setStatus("Không tìm thấy");
           return;
         }
 
         stepCd = 2;
-        guide.innerText = `Tìm thấy ${count} kết quả trong nhóm.\n👉 Bấm nút bên dưới để lọc riêng số CD và đổi về 0.001.`;
-        input.style.display = 'none';
-        btn.innerText = `Bước 2: Lọc Riêng ${savedCdVal} & Đổi 0.001`;
+        guide.innerText = `✅ Đã tìm thấy ${count} địa chỉ CD!\n👉 Bấm nút bên dưới để đổi về 0.001 (hoặc tự nhập số mong muốn):`;
+        input.value = '0.001';
+        btn.innerText = "Bước 2: Áp Dụng CD Mới";
         btn.className = "action-btn btn-purple";
-        setStatus(`Nhóm tìm thấy: ${count} kết quả`);
+        setStatus(`Khóa ${count} địa chỉ CD`);
       } 
       else if (stepCd === 2) {
-        setStatus(`Đang lọc riêng ${savedCdVal}...`);
-        h5gg.searchNumber(savedCdVal, 'F32', ANON_MIN, ANON_MAX);
-        let count = h5gg.getResultsCount();
-
-        if (count === 0) {
-          alert("Lọc thất bại! Vui lòng thử lại.");
-          resetCdMod();
-          return;
-        }
-
-        h5gg.editAll('0.001', 'F32');
-        alert(`✅ MOD CD THÀNH CÔNG!\n\nĐã đổi hệ số cản gió CD thành 0.001.`);
-        setStatus("Mod CD hoàn tất (0.001)");
+        let newCd = input.value.trim() || '0.001';
+        h5gg.editAll(newCd, 'F32');
+        alert(`✅ ĐÃ MOD CD THÀNH CÔNG!\nĐã chỉnh hệ số CD thành: ${newCd}`);
         resetCdMod();
       }
     }
@@ -345,12 +316,11 @@
     function resetCdMod() {
       hideKeyboard();
       stepCd = 1;
-      savedCdVal = '';
-      document.getElementById('inputCd').style.display = 'block';
       document.getElementById('inputCd').value = '';
-      document.getElementById('btnCdAction').innerText = "Bước 1: Quét Nhóm CD & 1";
+      document.getElementById('inputCd').placeholder = "Nhập CD (VD: 0.32)...";
+      document.getElementById('btnCdAction').innerText = "Bước 1: Tìm CD";
       document.getElementById('btnCdAction').className = "action-btn btn-green";
-      document.getElementById('guideCd').innerText = "👉 Ghi nhớ số CD xe và vào map chơi.\n👉 Nhập số CD vào ô bên dưới:";
+      document.getElementById('guideCd').innerText = "👉 Nhập số CD của xe (Dùng dấu chấm, VD: 0.32):";
       setStatus("Sẵn sàng");
     }
 
@@ -362,7 +332,7 @@
       const val = input.value.trim();
 
       if (!val || isNaN(val)) {
-        alert("Vui lòng nhập số Brake hợp lệ (Ví dụ: 1500 hoặc 3000)!");
+        alert("Vui lòng nhập số Brake hợp lệ!");
         return;
       }
 
@@ -377,8 +347,9 @@
       }
 
       h5gg.editAll('-5000', 'F32');
-      alert(`✅ BUFF PHANH THÀNH CÔNG!\n\nĐã đổi ${count} giá trị thành -5000.\n\n👉 Giữ phanh trong 2s rồi thoát và vào lại map để kích hoạt tốc độ!`);
-      resetBrakeMod();
+      alert(`✅ BUFF PHANH THÀNH CÔNG!\nĐã đổi sang -5000.`);
+      input.value = '';
+      setStatus("Buff phanh xong");
     }
 
     function resetBrakeMod() {
@@ -467,7 +438,7 @@
           if (count === 0) { alert("Lọc thất bại!"); resetGlowSteps(); return; }
           if (stepGlow === 7) {
             stepGlow = 8;
-            guide.innerText = `✅ ĐÃ KHÓA SẠCH ${count} ĐỊA CHỈ!\nNhập độ sáng rồi bấm Kích Hoạt (Khuyên dùng 38).`;
+            guide.innerText = `✅ ĐÃ KHÓA SẠCH ${count} ĐỊA CHỈ!\nNhập độ sáng rồi bấm Kích Hoạt.`;
             input.style.display = "block";
             btn.innerText = "Kích Hoạt Phát Sáng";
             btn.className = "action-btn btn-purple";
@@ -481,7 +452,7 @@
       } else if (stepGlow === 8) {
         let val = input.value.trim() || "38";
         h5gg.editAll(val, 'F32');
-        alert("ĐÃ KÍCH HOẠT PHÁT SÁNG!\nChạm nhẹ vào bảng màu để cập nhật.");
+        alert("ĐÃ KÍCH HOẠT PHÁT SÁNG!");
         resetGlowSteps();
       }
     }
