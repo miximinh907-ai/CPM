@@ -81,29 +81,6 @@
       outline: none;
       display: none;
     }
-    .color-select-group {
-      display: none;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-      margin-bottom: 10px;
-    }
-    .color-btn {
-      padding: 8px 0;
-      font-size: 11px;
-      font-weight: bold;
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: #fff;
-      cursor: pointer;
-      text-align: center;
-    }
-    .c-red { background: #dc2626; }
-    .c-blue { background: #2563eb; }
-    .c-green { background: #16a34a; }
-    .c-purple { background: #7c3aed; }
-    .c-yellow { background: #d97706; }
-    .c-white { background: #475569; }
-    
     .btn {
       display: flex;
       align-items: center;
@@ -120,6 +97,7 @@
     }
     .btn-green { background: linear-gradient(135deg, #10b981, #059669); }
     .btn-orange { background: linear-gradient(135deg, #f97316, #ea580c); }
+    .btn-glow { background: linear-gradient(135deg, #a855f7, #7c3aed); }
     .btn-red { 
       background: rgba(239, 68, 68, 0.15); 
       color: #f87171; 
@@ -154,21 +132,10 @@
     <button class="btn btn-red" onclick="resetBodySteps()">Làm lại từ đầu</button>
   </div>
 
-  <!-- TAB 2: MOD PHÁT SÁNG -->
+  <!-- TAB 2: MOD PHÁT SÁNG (CHUẨN 7 BƯỚC) -->
   <div id="tabGlow" class="tab-content">
     <div class="guide-card" id="guideGlow">Kéo màu chi tiết về TRẮNG (#FFFFFF) rồi bấm nút dưới.</div>
-    
     <input type="number" id="inputGlow" class="input-box" value="38" placeholder="Độ sáng (mặc định 38)">
-    
-    <div class="color-select-group" id="colorPickerGroup">
-      <button class="color-btn c-red" onclick="applyColorGlow('red')">Đỏ</button>
-      <button class="color-btn c-blue" onclick="applyColorGlow('blue')">Xanh Lam</button>
-      <button class="color-btn c-green" onclick="applyColorGlow('green')">Xanh Lá</button>
-      <button class="color-btn c-purple" onclick="applyColorGlow('purple')">Tím</button>
-      <button class="color-btn c-yellow" onclick="applyColorGlow('yellow')">Vàng</button>
-      <button class="color-btn c-white" onclick="applyColorGlow('white')">Trắng</button>
-    </div>
-
     <button class="btn btn-green" id="btnGlow" onclick="nextGlowStep()">Bước 1: Quét Màu Trắng (F32 = 1)</button>
     <button class="btn btn-red" onclick="resetGlowSteps()">Làm lại từ đầu</button>
   </div>
@@ -176,14 +143,15 @@
   <div class="status-bar" id="statusLog">Sẵn sàng hoạt động</div>
 
   <script>
+    const ANON_MIN = '0x100000000';
+    const ANON_MAX = '0x200000000';
+
     function setStatus(msg) {
       document.getElementById('statusLog').innerText = msg;
     }
 
     function hideKeyboard() {
-      if (document.activeElement) {
-        document.activeElement.blur();
-      }
+      if (document.activeElement) document.activeElement.blur();
     }
 
     function switchTab(tab) {
@@ -276,10 +244,18 @@
     }
 
     // ==========================================
-    // 2. LOGIC MOD PHÁT SÁNG (3 NHỊP SIÊU SẠCH)
+    // 2. LOGIC MOD PHÁT SÁNG (ĐỦ 7 BƯỚC LỌC SẠCH)
     // ==========================================
     let stepGlow = 1;
-    let savedAddresses = [];
+    const sequenceGlow = [
+      { val: '1', name: 'TRẮNG (#FFFFFF)' },
+      { val: '0', name: 'ĐEN (#000000)' },
+      { val: '1', name: 'TRẮNG (#FFFFFF)' },
+      { val: '0', name: 'ĐEN (#000000)' },
+      { val: '1', name: 'TRẮNG (#FFFFFF)' },
+      { val: '0', name: 'ĐEN (#000000)' },
+      { val: '1', name: 'TRẮNG (#FFFFFF)' }
+    ];
 
     function nextGlowStep() {
       if (typeof h5gg === 'undefined') { alert("Lỗi: H5GG chưa được load!"); return; }
@@ -287,94 +263,73 @@
       const btn = document.getElementById('btnGlow');
       const input = document.getElementById('inputGlow');
       const guide = document.getElementById('guideGlow');
-      const picker = document.getElementById('colorPickerGroup');
 
-      // Nhịp 1: Quét màu Trắng (1.0)
-      if (stepGlow === 1) {
-        setStatus("Đang quét màu Trắng...");
-        h5gg.clearResults();
-        h5gg.searchNumber('1', 'F32', '0x100000000', '0x180000000');
-        let count = h5gg.getResultsCount();
+      if (currentGlowStepHandler()) return;
 
-        if (count === 0) {
-          h5gg.searchNumber('1', 'F32', '0x00000000', '0x200000000');
-          count = h5gg.getResultsCount();
+      function currentGlowStepHandler() {
+        if (stepGlow === 1) {
+          setStatus("Đang quét an toàn...");
+          setTimeout(() => {
+            h5gg.clearResults();
+            h5gg.searchNumber('1', 'F32', ANON_MIN, ANON_MAX);
+            let count = h5gg.getResultsCount();
+            if (count === 0) { alert("Không tìm thấy giá trị 1! Hãy kéo màu về TRẮNG (#FFFFFF)."); return; }
+            
+            stepGlow = 2;
+            guide.innerText = `Còn ${count} kết quả.\n👉 Bây giờ hãy kéo màu về ĐEN (#000000), rồi bấm nút dưới.`;
+            btn.innerText = "Bước 2: Lọc Màu Đen (F32 = 0)";
+            setStatus(`Còn ${count} kết quả`);
+          }, 80);
+          return true;
+        } 
+        else if (stepGlow >= 2 && stepGlow <= 7) {
+          let currentTarget = sequenceGlow[stepGlow - 1].val;
+          setStatus(`Đang lọc Float ${currentTarget}...`);
+          
+          setTimeout(() => {
+            h5gg.searchNumber(currentTarget, 'F32', ANON_MIN, ANON_MAX);
+            let count = h5gg.getResultsCount();
+            if (count === 0) { alert("Lọc thất bại! Hãy làm lại từ đầu."); resetGlowSteps(); return; }
+
+            if (stepGlow === 7) {
+              stepGlow = 8;
+              guide.innerText = `✅ ĐÃ LỌC XONG (Còn ${count} địa chỉ sạch)!\n\nNhập độ sáng phát sáng (mặc định: 38) rồi bấm Kích Hoạt.`;
+              input.style.display = "block";
+              btn.innerText = "Kích Hoạt Phát Sáng";
+              btn.className = "btn btn-glow";
+              setStatus(`Khóa ${count} địa chỉ`);
+            } else {
+              stepGlow++;
+              const nextTarget = sequenceGlow[stepGlow - 1];
+              guide.innerText = `Còn ${count} kết quả.\n👉 Kéo màu về ${nextTarget.name}, rồi bấm nút dưới.`;
+              btn.innerText = `Bước ${stepGlow}: Lọc Màu ${nextTarget.val === '1' ? 'Trắng' : 'Đen'} (F32 = ${nextTarget.val})`;
+              setStatus(`Còn ${count} kết quả`);
+            }
+          }, 80);
+          return true;
+        } 
+        else if (stepGlow === 8) {
+          let val = input.value.trim();
+          if (!val || isNaN(val)) { alert("Vui lòng nhập độ sáng hợp lệ!"); return; }
+
+          setStatus("Đang ghi đè giá trị...");
+          setTimeout(() => {
+            h5gg.editAll(val, 'F32');
+            alert(`THÀNH CÔNG!\nĐã chỉnh độ sáng thành ${val}.\n👉 Chạm nhẹ vào chi tiết hoặc chuyển tab để xe phát sáng!`);
+            setStatus("Mod thành công!");
+            resetGlowSteps();
+          }, 50);
+          return true;
         }
-
-        if (count === 0) { alert("Không tìm thấy! Hãy chắc chắn kéo màu về TRẮNG (#FFFFFF)."); return; }
-        stepGlow = 2;
-        guide.innerText = `👉 Kéo thanh màu về ĐEN (#000000) rồi bấm nút dưới.`;
-        btn.innerText = "Bước 2: Lọc Màu Đen (F32 = 0)";
-        setStatus(`Bước 1 xong (${count} kết quả)`);
-      } 
-      // Nhịp 2: Lọc màu Đen (0.0) -> Triệt tiêu 99.9% rác
-      else if (stepGlow === 2) {
-        setStatus("Đang lọc màu Đen...");
-        h5gg.searchNumber('0', 'F32', '0x00000000', '0x200000000');
-        let count = h5gg.getResultsCount();
-        if (count === 0) { alert("Lọc thất bại! Kéo màu về ĐEN rồi thử lại."); resetGlowSteps(); return; }
-
-        stepGlow = 3;
-        guide.innerText = `Còn ${count} kết quả.\n👉 Kéo màu về lại TRẮNG (#FFFFFF) rồi bấm nút dưới.`;
-        btn.innerText = "Bước 3: Lọc Màu Trắng (F32 = 1)";
-        setStatus(`Còn ${count} kết quả`);
-      } 
-      // Nhịp 3: Khóa đúng địa chỉ màu xe (< 10 kết quả)
-      else if (stepGlow === 3) {
-        setStatus("Đang khóa địa chỉ...");
-        h5gg.searchNumber('1', 'F32', '0x00000000', '0x200000000');
-        let count = h5gg.getResultsCount();
-        if (count === 0) { alert("Lọc thất bại!"); resetGlowSteps(); return; }
-
-        savedAddresses = h5gg.getResults(count);
-        stepGlow = 4;
-        guide.innerText = `✅ ĐÃ KHÓA THÀNH CÔNG ${count} ĐỊA CHỈ!\n\n👉 Chọn màu bạn muốn phát sáng bên dưới:`;
-        input.style.display = "block";
-        picker.style.display = "grid";
-        btn.style.display = "none";
-        setStatus(`Khóa chính xác ${count} địa chỉ`);
       }
-    }
-
-    function applyColorGlow(color) {
-      hideKeyboard();
-      const input = document.getElementById('inputGlow');
-      let brightness = parseFloat(input.value) || 38;
-
-      if (!savedAddresses || savedAddresses.length === 0) {
-        alert("Lỗi danh sách địa chỉ!");
-        return;
-      }
-
-      savedAddresses.forEach(item => {
-        let baseAddr = item.address;
-        let rVal = 0, gVal = 0, bVal = 0;
-        
-        if (color === 'red') { rVal = brightness; gVal = 0; bVal = 0; }
-        else if (color === 'green') { rVal = 0; gVal = brightness; bVal = 0; }
-        else if (color === 'blue') { rVal = 0; gVal = 0; bVal = brightness; }
-        else if (color === 'purple') { rVal = brightness; gVal = 0; bVal = brightness; }
-        else if (color === 'yellow') { rVal = brightness; gVal = brightness; bVal = 0; }
-        else if (color === 'white') { rVal = brightness; gVal = brightness; bVal = brightness; }
-
-        h5gg.setValue(baseAddr, rVal.toString(), 'F32');
-        h5gg.setValue((BigInt(baseAddr) + 4n).toString(), gVal.toString(), 'F32');
-        h5gg.setValue((BigInt(baseAddr) + 8n).toString(), bVal.toString(), 'F32');
-      });
-
-      alert(`THÀNH CÔNG!\nĐã kích hoạt phát sáng màu [${color.toUpperCase()}] độ sáng ${brightness}.\n\n👉 Chuyển tab trong game để thấy xe phát sáng!`);
-      setStatus(`Đang phát sáng: ${color.toUpperCase()}`);
     }
 
     function resetGlowSteps() {
       hideKeyboard();
       stepGlow = 1;
-      savedAddresses = [];
       document.getElementById('inputGlow').style.display = "none";
       document.getElementById('inputGlow').value = "38";
-      document.getElementById('colorPickerGroup').style.display = "none";
       const btn = document.getElementById('btnGlow');
-      btn.style.display = "flex";
       btn.className = "btn btn-green";
       btn.innerText = "Bước 1: Quét Màu Trắng (F32 = 1)";
       document.getElementById('guideGlow').innerText = "Kéo màu chi tiết về TRẮNG (#FFFFFF) rồi bấm nút dưới.";
